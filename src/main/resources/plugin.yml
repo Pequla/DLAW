@@ -1,0 +1,7 @@
+name: DLAW
+version: '${project.version}'
+main: com.pequla.dlaw.DLAW
+api-version: 1.18
+load: STARTUP
+authors: [ Pequla ]
+description: Discord login and webhooks

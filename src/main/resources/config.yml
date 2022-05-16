@@ -1,0 +1,14 @@
+discord:
+  token: token-goes-here
+  guild: 964645507962138624
+  channel:
+    chat: 967048477974618112
+    bot: 964999551993933884
+api:
+  port: 8080
+color:
+  system: 65535
+  join: 65280
+  leave: 16711680
+  death: 8388736
+  advancement: 65535
