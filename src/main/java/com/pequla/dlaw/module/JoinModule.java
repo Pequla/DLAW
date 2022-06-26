@@ -68,7 +68,8 @@ public class JoinModule implements Listener {
             Member member = guild.retrieveMemberById(model.getDiscordId()).complete();
             DiscordModel discord = DiscordModel.builder()
                     .id(member.getId())
-                    .name(MarkdownSanitizer.sanitize(member.getEffectiveName()))
+                    .name(MarkdownSanitizer.sanitize(member.getUser().getAsTag()))
+                    .nickname(MarkdownSanitizer.sanitize(member.getEffectiveName()))
                     .avatar(member.getEffectiveAvatarUrl())
                     .build();
             plugin.getPlayers().put(player.getUniqueId(), discord);

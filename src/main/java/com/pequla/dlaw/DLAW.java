@@ -18,6 +18,7 @@ import net.dv8tion.jda.api.utils.MarkdownUtil;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
+import org.bukkit.plugin.PluginDescriptionFile;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
 import spark.Spark;
@@ -79,13 +80,22 @@ public final class DLAW extends JavaPlugin {
                 status.setOnline(list.size());
                 status.setList(list);
 
-                List<String> plugins = Arrays.stream(getServer().getPluginManager().getPlugins())
-                        .map(Plugin::getName)
+                List<PluginData> plugins = Arrays.stream(getServer().getPluginManager().getPlugins())
+                        .map(plugin -> {
+                            PluginDescriptionFile desc = plugin.getDescription();
+                            return PluginData.builder()
+                                    .name(plugin.getName())
+                                    .version(desc.getVersion())
+                                    .authors(desc.getAuthors())
+                                    .description(desc.getDescription())
+                                    .website(desc.getWebsite())
+                                    .build();
+                        })
                         .collect(Collectors.toList());
 
                 World world = getServer().getWorlds().get(0);
                 WorldData wd = new WorldData();
-                wd.setSeed(world.getSeed());
+                wd.setSeed(String.valueOf(world.getSeed()));
                 wd.setTime(world.getTime());
                 wd.setType(getServer().getWorldType());
 

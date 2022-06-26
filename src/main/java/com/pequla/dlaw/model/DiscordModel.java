@@ -12,5 +12,6 @@ import lombok.NoArgsConstructor;
 public class DiscordModel {
     private String id;
     private String name;
+    private String nickname;
     private String avatar;
 }

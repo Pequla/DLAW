@@ -9,7 +9,7 @@ import lombok.Setter;
 @Setter
 public class WorldData {
 
-    private Long seed;
+    private String seed;
     private Long time;
     private String type;
 }
