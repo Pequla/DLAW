@@ -17,7 +17,6 @@ import net.dv8tion.jda.api.utils.MarkdownSanitizer;
 import net.dv8tion.jda.api.utils.MarkdownUtil;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
-import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.PluginDescriptionFile;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -73,6 +72,7 @@ public final class DLAW extends JavaPlugin {
                 getServer().getOnlinePlayers().forEach(player -> {
                     PlayerData data = new PlayerData();
                     data.setName(player.getName());
+                    data.setDisplayName(player.getDisplayName());
                     data.setId(player.getUniqueId().toString());
                     list.add(data);
                 });
@@ -135,7 +135,7 @@ public final class DLAW extends JavaPlugin {
                             return generateError("Discord server not found");
                         }
                         DataModel data = service.getLinkData(converted.toString());
-                        Member member = guild.retrieveMemberById(data.getDiscordId()).complete();
+                        Member member = guild.retrieveMemberById(data.getUser().getDiscordId()).complete();
                         if (member == null) {
                             response.status(404);
                             return generateError("Member not found");

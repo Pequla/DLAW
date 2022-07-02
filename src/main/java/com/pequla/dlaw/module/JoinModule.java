@@ -53,11 +53,6 @@ public class JoinModule implements Listener {
             DataService service = DataService.getInstance();
             DataModel model = service.getLinkData(player.getUniqueId().toString().replace("-", ""));
 
-            if (model.getBannedAt() != null) {
-                event.disallow(PlayerLoginEvent.Result.KICK_OTHER, "You have been banned");
-                return;
-            }
-
             Guild guild = plugin.getJda().getGuildById(config.getLong("discord.guild"));
             if (guild == null) {
                 event.disallow(PlayerLoginEvent.Result.KICK_OTHER, "Discord server not found");
@@ -65,7 +60,7 @@ public class JoinModule implements Listener {
             }
 
             // Getting player as a discord member
-            Member member = guild.retrieveMemberById(model.getDiscordId()).complete();
+            Member member = guild.retrieveMemberById(model.getUser().getDiscordId()).complete();
             DiscordModel discord = DiscordModel.builder()
                     .id(member.getId())
                     .name(MarkdownSanitizer.sanitize(member.getUser().getAsTag()))

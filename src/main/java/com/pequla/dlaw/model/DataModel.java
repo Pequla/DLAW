@@ -14,10 +14,28 @@ import java.time.LocalDateTime;
 public class DataModel {
 
     private Integer id;
-    private String discordId;
     private String uuid;
+    private DiscordUser user;
+    private DiscordGuild guild;
     private LocalDateTime createdAt;
-    private LocalDateTime bannedAt;
-    private String bannedBy;
-    private String guildId;
+
+    @Getter
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class DiscordUser {
+        private Integer id;
+        private String discordId;
+        private LocalDateTime createdAt;
+    }
+
+    @Getter
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class DiscordGuild {
+        private Integer id;
+        private String discordId;
+        private LocalDateTime createdAt;
+    }
 }

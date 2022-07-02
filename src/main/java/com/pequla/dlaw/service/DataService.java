@@ -3,6 +3,7 @@ package com.pequla.dlaw.service;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import com.pequla.dlaw.PluginUtils;
 import com.pequla.dlaw.ex.ServiceException;
 import com.pequla.dlaw.model.DataModel;
 import lombok.Getter;
@@ -45,7 +46,7 @@ public class DataService {
 
     public DataModel getLinkData(String uuid) throws IOException, InterruptedException {
         HttpRequest req = HttpRequest.newBuilder()
-                .uri(URI.create("https://link.samifying.com/api/data/uuid/" + uuid))
+                .uri(URI.create("https://link.samifying.com/api/data/uuid/" + PluginUtils.cleanUUID(uuid)))
                 .header("Content-Type", "application/json")
                 .GET()
                 .build();

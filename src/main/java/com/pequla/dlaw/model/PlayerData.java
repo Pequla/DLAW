@@ -10,5 +10,6 @@ import lombok.Setter;
 public class PlayerData {
 
     private String name;
+    private String displayName;
     private String id;
 }
