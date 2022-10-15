@@ -5,10 +5,11 @@ discord:
     chat: 967048477974618112
     bot: 964999551993933884
 api:
+  enable: true
   port: 8080
 color:
   system: 65535
   join: 65280
   leave: 16711680
-  death: 8388736
+  death: 16749128
   advancement: 65535

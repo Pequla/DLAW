@@ -48,22 +48,6 @@ public class ChatModule extends ListenerAdapter implements Listener {
         if (channel.getIdLong() == config.getLong("discord.channel.chat")) {
             server.broadcastMessage(ChatColor.LIGHT_PURPLE + author.getAsTag() + ": " +
                     ChatColor.WHITE + content);
-            return;
-        }
-
-        // Bot channel
-        if (channel.getIdLong() == config.getLong("discord.channel.bot")) {
-            if (content.equals(".help")) {
-                channel.sendMessage("In order to join please make sure you have linked your accounts using the command /verify. If that doesn't help make sure to contact staff").queue();
-                return;
-            }
-            if (content.equals(".status")) {
-                channel.sendMessage("There is currently **" + server.getOnlinePlayers().size() + "** out of **" + server.getMaxPlayers() + "** players online").queue();
-                return;
-            }
-            if (content.equals(".seed")) {
-                channel.sendMessage(String.valueOf(server.getWorlds().get(0).getSeed())).queue();
-            }
         }
     }
 

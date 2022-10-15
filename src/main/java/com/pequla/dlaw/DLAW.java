@@ -1,31 +1,25 @@
 package com.pequla.dlaw;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.pequla.dlaw.model.*;
-import com.pequla.dlaw.module.ChatModule;
-import com.pequla.dlaw.module.JoinModule;
-import com.pequla.dlaw.module.OtherModule;
-import com.pequla.dlaw.service.DataService;
+import com.pequla.dlaw.model.DiscordModel;
+import com.pequla.dlaw.module.*;
 import lombok.Getter;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
-import net.dv8tion.jda.api.entities.*;
+import net.dv8tion.jda.api.entities.Activity;
+import net.dv8tion.jda.api.entities.SelfUser;
+import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.requests.GatewayIntent;
-import net.dv8tion.jda.api.utils.MarkdownSanitizer;
 import net.dv8tion.jda.api.utils.MarkdownUtil;
-import org.bukkit.World;
 import org.bukkit.entity.Player;
-import org.bukkit.plugin.PluginDescriptionFile;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
-import spark.Spark;
 
 import javax.security.auth.login.LoginException;
 import java.time.Instant;
-import java.util.*;
-import java.util.stream.Collectors;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.UUID;
 
 @Getter
 public final class DLAW extends JavaPlugin {
@@ -35,15 +29,17 @@ public final class DLAW extends JavaPlugin {
 
     @Override
     public void onEnable() {
-        saveDefaultConfig();
-        ChatModule chatModule = new ChatModule(this);
         try {
+            saveDefaultConfig();
+            ChatModule chatModule = new ChatModule(this);
+
             jda = JDABuilder.createDefault(getConfig().getString("discord.token"))
                     .setActivity(Activity.playing("Minecraft"))
                     .enableIntents(GatewayIntent.GUILD_MEMBERS)
                     .enableIntents(GatewayIntent.DIRECT_MESSAGES)
                     .enableIntents(GatewayIntent.GUILD_MESSAGES)
                     .addEventListeners(chatModule)
+                    .addEventListeners(new CommandModule(this))
                     .build();
             try {
                 jda.awaitReady();
@@ -57,97 +53,18 @@ public final class DLAW extends JavaPlugin {
                 handleException(e);
             }
 
-            // WEB API
-            DataService service = DataService.getInstance();
-            Spark.port(getConfig().getInt("api.port"));
-            Spark.after((request, response) -> {
-                response.header("Access-Control-Allow-Origin", "*");
-                response.header("Access-Control-Allow-Methods", "*");
-                response.type("application/json");
-            });
+            // Setting up REST API
+            new Thread(new RestModule(this)).start();
 
-            Spark.get("/api/status", (request, response) -> {
-                List<PluginData> plugins = Arrays.stream(getServer().getPluginManager().getPlugins())
-                        .map(plugin -> {
-                            PluginDescriptionFile desc = plugin.getDescription();
-                            return PluginData.builder()
-                                    .name(plugin.getName())
-                                    .version(desc.getVersion())
-                                    .authors(desc.getAuthors())
-                                    .description(desc.getDescription())
-                                    .website(desc.getWebsite())
-                                    .build();
-                        })
-                        .collect(Collectors.toList());
+            // Registering event listeners
+            PluginManager manager = getServer().getPluginManager();
+            manager.registerEvents(chatModule, this);
+            manager.registerEvents(new JoinModule(this), this);
+            manager.registerEvents(new OtherModule(this), this);
 
-                World world = getServer().getWorlds().get(0);
-                return service.getMapper().writeValueAsString(ServerStatus.builder()
-                        .players(getPlayerStatus())
-                        .plugins(plugins)
-                        .world(WorldData.builder()
-                                .seed(String.valueOf(world.getSeed()))
-                                .time(world.getTime())
-                                .type(getServer().getWorldType())
-                                .build())
-                        .version(getServer().getVersion())
-                        .build());
-            });
-
-            Spark.get("/api/status/players", (request, response) ->
-                    service.getMapper().writeValueAsString(getPlayerStatus()));
-
-            Spark.get("/api/user", (request, response) -> {
-                String uuid = request.queryParams("uuid");
-                if (uuid != null) {
-                    UUID converted;
-                    try {
-                        converted = UUID.fromString(uuid);
-                    } catch (IllegalArgumentException ae) {
-                        // Adding dashes to uuid string
-                        try {
-                            converted = UUID.fromString(uuid.replaceFirst(
-                                    "(\\p{XDigit}{8})(\\p{XDigit}{4})(\\p{XDigit}{4})(\\p{XDigit}{4})(\\p{XDigit}+)", "$1-$2-$3-$4-$5"
-                            ));
-                        } catch (Exception ex) {
-                            // Bad uuid
-                            response.status(400);
-                            return generateError("Invalid uuid");
-                        }
-                    }
-
-                    // No data found in cache
-                    DiscordModel model = players.get(converted);
-                    if (model == null) {
-                        Guild guild = jda.getGuildById(getConfig().getLong("discord.guild"));
-                        if (guild == null) {
-                            response.status(404);
-                            return generateError("Discord server not found");
-                        }
-                        DataModel data = service.getLinkData(converted.toString());
-                        Member member = guild.retrieveMemberById(data.getUser().getDiscordId()).complete();
-                        if (member == null) {
-                            response.status(404);
-                            return generateError("Member not found");
-                        }
-                        return service.getMapper().writeValueAsString(DiscordModel.builder()
-                                .id(member.getId())
-                                .name(MarkdownSanitizer.sanitize(member.getEffectiveName()))
-                                .avatar(member.getEffectiveAvatarUrl())
-                                .build());
-                    }
-                    return service.getMapper().writeValueAsString(model);
-                }
-                response.status(400);
-                return generateError("Required param uuid not found");
-            });
         } catch (LoginException e) {
             handleException(e);
         }
-
-        PluginManager manager = getServer().getPluginManager();
-        manager.registerEvents(chatModule, this);
-        manager.registerEvents(new JoinModule(this), this);
-        manager.registerEvents(new OtherModule(this), this);
     }
 
     @Override
@@ -190,31 +107,6 @@ public final class DLAW extends JavaPlugin {
     }
 
     public String getMinecraftAvatarUrl(Player player) {
-        return "https://visage.surgeplay.com/face/" + player.getUniqueId().toString().replace("-", "");
-    }
-
-    public static String generateError(String error) throws JsonProcessingException {
-        ObjectMapper mapper = DataService.getInstance().getMapper();
-        return mapper.writeValueAsString(SparkError.builder()
-                .message(error)
-                .timestamp(System.currentTimeMillis())
-                .build());
-    }
-
-    private PlayerStatus getPlayerStatus() {
-        HashSet<PlayerData> list = new HashSet<>();
-        getServer().getOnlinePlayers().forEach(player -> {
-            PlayerData data = new PlayerData();
-            data.setName(player.getName());
-            data.setDisplayName(player.getDisplayName());
-            data.setId(player.getUniqueId().toString());
-            list.add(data);
-        });
-
-        return PlayerStatus.builder()
-                .max(getServer().getMaxPlayers())
-                .online(list.size())
-                .list(list)
-                .build();
+        return "https://visage.surgeplay.com/face/" + PluginUtils.cleanUUID(player.getUniqueId());
     }
 }
