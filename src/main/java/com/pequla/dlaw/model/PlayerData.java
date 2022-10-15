@@ -8,7 +8,6 @@ import lombok.Setter;
 @Getter
 @Setter
 public class PlayerData {
-
     private String name;
     private String displayName;
     private String id;

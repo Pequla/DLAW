@@ -41,6 +41,8 @@ public final class DLAW extends JavaPlugin {
             jda = JDABuilder.createDefault(getConfig().getString("discord.token"))
                     .setActivity(Activity.playing("Minecraft"))
                     .enableIntents(GatewayIntent.GUILD_MEMBERS)
+                    .enableIntents(GatewayIntent.DIRECT_MESSAGES)
+                    .enableIntents(GatewayIntent.GUILD_MESSAGES)
                     .addEventListeners(chatModule)
                     .build();
             try {
@@ -65,21 +67,6 @@ public final class DLAW extends JavaPlugin {
             });
 
             Spark.get("/api/status", (request, response) -> {
-                PlayerStatus status = new PlayerStatus();
-                status.setMax(getServer().getMaxPlayers());
-
-                HashSet<PlayerData> list = new HashSet<>();
-                getServer().getOnlinePlayers().forEach(player -> {
-                    PlayerData data = new PlayerData();
-                    data.setName(player.getName());
-                    data.setDisplayName(player.getDisplayName());
-                    data.setId(player.getUniqueId().toString());
-                    list.add(data);
-                });
-
-                status.setOnline(list.size());
-                status.setList(list);
-
                 List<PluginData> plugins = Arrays.stream(getServer().getPluginManager().getPlugins())
                         .map(plugin -> {
                             PluginDescriptionFile desc = plugin.getDescription();
@@ -94,18 +81,20 @@ public final class DLAW extends JavaPlugin {
                         .collect(Collectors.toList());
 
                 World world = getServer().getWorlds().get(0);
-                WorldData wd = new WorldData();
-                wd.setSeed(String.valueOf(world.getSeed()));
-                wd.setTime(world.getTime());
-                wd.setType(getServer().getWorldType());
-
-                ServerStatus ss = new ServerStatus();
-                ss.setPlayers(status);
-                ss.setPlugins(plugins);
-                ss.setWorld(wd);
-                ss.setVersion(getServer().getVersion());
-                return service.getMapper().writeValueAsString(ss);
+                return service.getMapper().writeValueAsString(ServerStatus.builder()
+                        .players(getPlayerStatus())
+                        .plugins(plugins)
+                        .world(WorldData.builder()
+                                .seed(String.valueOf(world.getSeed()))
+                                .time(world.getTime())
+                                .type(getServer().getWorldType())
+                                .build())
+                        .version(getServer().getVersion())
+                        .build());
             });
+
+            Spark.get("/api/status/players", (request, response) ->
+                    service.getMapper().writeValueAsString(getPlayerStatus()));
 
             Spark.get("/api/user", (request, response) -> {
                 String uuid = request.queryParams("uuid");
@@ -140,12 +129,11 @@ public final class DLAW extends JavaPlugin {
                             response.status(404);
                             return generateError("Member not found");
                         }
-                        DiscordModel discord = DiscordModel.builder()
+                        return service.getMapper().writeValueAsString(DiscordModel.builder()
                                 .id(member.getId())
                                 .name(MarkdownSanitizer.sanitize(member.getEffectiveName()))
                                 .avatar(member.getEffectiveAvatarUrl())
-                                .build();
-                        return service.getMapper().writeValueAsString(discord);
+                                .build());
                     }
                     return service.getMapper().writeValueAsString(model);
                 }
@@ -169,6 +157,9 @@ public final class DLAW extends JavaPlugin {
             getLogger().info("Disconnecting from Discord API");
             jda.shutdown();
         }
+
+        // Cleanup
+        players.clear();
     }
 
     public void handleException(Exception e) {
@@ -193,7 +184,8 @@ public final class DLAW extends JavaPlugin {
             DiscordModel model = players.get(player.getUniqueId());
             sendLogEmbed(builder.setColor(getConfig().getInt(colorPath))
                     .setAuthor(model.getName(), null, model.getAvatar())
-                    .setFooter(model.getId(), getMinecraftAvatarUrl(player)));
+                    .setThumbnail(getMinecraftAvatarUrl(player))
+                    .setFooter(model.getId()));
         }
     }
 
@@ -207,5 +199,22 @@ public final class DLAW extends JavaPlugin {
                 .message(error)
                 .timestamp(System.currentTimeMillis())
                 .build());
+    }
+
+    private PlayerStatus getPlayerStatus() {
+        HashSet<PlayerData> list = new HashSet<>();
+        getServer().getOnlinePlayers().forEach(player -> {
+            PlayerData data = new PlayerData();
+            data.setName(player.getName());
+            data.setDisplayName(player.getDisplayName());
+            data.setId(player.getUniqueId().toString());
+            list.add(data);
+        });
+
+        return PlayerStatus.builder()
+                .max(getServer().getMaxPlayers())
+                .online(list.size())
+                .list(list)
+                .build();
     }
 }

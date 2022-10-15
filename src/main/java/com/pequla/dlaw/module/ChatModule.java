@@ -1,7 +1,6 @@
 package com.pequla.dlaw.module;
 
 import com.pequla.dlaw.DLAW;
-import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.entities.User;
@@ -54,12 +53,8 @@ public class ChatModule extends ListenerAdapter implements Listener {
 
         // Bot channel
         if (channel.getIdLong() == config.getLong("discord.channel.bot")) {
-            if (content.equals(".ip")) {
-                channel.sendMessage(MarkdownUtil.bold("mc.pequla.one")).queue();
-                return;
-            }
             if (content.equals(".help")) {
-                channel.sendMessage("In order to join please make sure you have linked your accounts using the command !verify. If that doesn't help make sure to contact staff").queue();
+                channel.sendMessage("In order to join please make sure you have linked your accounts using the command /verify. If that doesn't help make sure to contact staff").queue();
                 return;
             }
             if (content.equals(".status")) {
@@ -79,10 +74,9 @@ public class ChatModule extends ListenerAdapter implements Listener {
             FileConfiguration config = plugin.getConfig();
             TextChannel channel = plugin.getJda().getTextChannelById(config.getLong("discord.channel.chat"));
             if (channel != null) {
-                channel.sendMessageEmbeds(new EmbedBuilder()
-                        .setAuthor(player.getName(), null, plugin.getMinecraftAvatarUrl(player))
-                        .setDescription(MarkdownSanitizer.sanitize(event.getMessage()))
-                        .build()).queue();
+                channel.sendMessage(
+                        MarkdownUtil.bold(player.getName()) + ": " + MarkdownSanitizer.sanitize(event.getMessage())
+                ).queue();
             }
         }).start();
     }
