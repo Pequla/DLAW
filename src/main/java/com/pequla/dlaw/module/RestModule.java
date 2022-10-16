@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.pequla.dlaw.DLAW;
 import com.pequla.dlaw.model.*;
+import com.pequla.dlaw.model.backend.DataModel;
 import com.pequla.dlaw.service.DataService;
 import lombok.RequiredArgsConstructor;
 import net.dv8tion.jda.api.entities.Guild;
@@ -104,7 +105,7 @@ public class RestModule implements Runnable{
                         response.status(404);
                         return generateError("Discord server not found");
                     }
-                    DataModel data = service.getLinkData(converted.toString());
+                    DataModel data = service.getData(converted.toString());
                     Member member = guild.retrieveMemberById(data.getUser().getDiscordId()).complete();
                     if (member == null) {
                         response.status(404);

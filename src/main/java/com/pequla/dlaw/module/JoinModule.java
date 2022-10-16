@@ -1,8 +1,7 @@
 package com.pequla.dlaw.module;
 
 import com.pequla.dlaw.DLAW;
-import com.pequla.dlaw.ex.ServiceException;
-import com.pequla.dlaw.model.DataModel;
+import com.pequla.dlaw.model.backend.DataModel;
 import com.pequla.dlaw.model.DiscordModel;
 import com.pequla.dlaw.service.DataService;
 import lombok.RequiredArgsConstructor;
@@ -51,7 +50,7 @@ public class JoinModule implements Listener {
         // Checking if player has been verified
         try {
             DataService service = DataService.getInstance();
-            DataModel model = service.getLinkData(player.getUniqueId().toString().replace("-", ""));
+            DataModel model = service.getData(player.getUniqueId().toString().replace("-", ""));
 
             Guild guild = plugin.getJda().getGuildById(config.getLong("discord.guild"));
             if (guild == null) {
@@ -78,11 +77,9 @@ public class JoinModule implements Listener {
             if (re.getErrorResponse() == ErrorResponse.UNKNOWN_USER) {
                 event.disallow(PlayerLoginEvent.Result.KICK_OTHER, "Discord user not found");
             }
-        } catch (ServiceException se) {
-            event.disallow(PlayerLoginEvent.Result.KICK_OTHER, "You are not verified");
         } catch (Exception e) {
             // On any error player will get kicked
-            event.disallow(PlayerLoginEvent.Result.KICK_OTHER, "Unexpected error");
+            event.disallow(PlayerLoginEvent.Result.KICK_OTHER, e.getMessage());
             plugin.handleException(e);
         }
     }

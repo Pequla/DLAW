@@ -1,11 +1,14 @@
 package com.pequla.dlaw.service;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.pequla.dlaw.PluginUtils;
-import com.pequla.dlaw.ex.ServiceException;
-import com.pequla.dlaw.model.DataModel;
+import com.pequla.dlaw.model.backend.AccountModel;
+import com.pequla.dlaw.model.backend.DataModel;
+import com.pequla.dlaw.model.backend.ErrorModel;
+import com.pequla.dlaw.model.backend.LinkModel;
 import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
 
@@ -14,7 +17,6 @@ import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
-import java.time.Duration;
 
 @Getter
 public class DataService {
@@ -28,7 +30,6 @@ public class DataService {
         this.client = HttpClient.newBuilder()
                 .version(HttpClient.Version.HTTP_2)
                 .followRedirects(HttpClient.Redirect.NORMAL)
-                .connectTimeout(Duration.ofSeconds(3))
                 .build();
 
         // Register json mapper
@@ -44,22 +45,56 @@ public class DataService {
         return instance;
     }
 
-    public DataModel getLinkData(String uuid) throws IOException, InterruptedException {
+    public DataModel getData(String uuid) throws IOException, InterruptedException {
         HttpRequest req = HttpRequest.newBuilder()
                 .uri(URI.create("https://link.samifying.com/api/data/uuid/" + PluginUtils.cleanUUID(uuid)))
                 .header("Content-Type", "application/json")
                 .GET()
                 .build();
-        HttpResponse<String> tokenRsp = client.send(req, HttpResponse.BodyHandlers.ofString());
-        handleStatusCode(tokenRsp);
-        return mapper.readValue(tokenRsp.body(), DataModel.class);
+        HttpResponse<String> json = client.send(req, HttpResponse.BodyHandlers.ofString());
+        handleStatusCode(json);
+        return mapper.readValue(json.body(), DataModel.class);
     }
 
-    private void handleStatusCode(@NotNull HttpResponse<String> rsp) throws ServiceException {
+    public AccountModel getAccount(String name) throws IOException, InterruptedException {
+        HttpRequest req = HttpRequest.newBuilder()
+                .uri(URI.create("https://link.samifying.com/api/cache/name/" + name))
+                .header("Content-Type", "application/json")
+                .GET()
+                .build();
+        HttpResponse<String> json = client.send(req, HttpResponse.BodyHandlers.ofString());
+        handleStatusCode(json);
+        return mapper.readValue(json.body(), AccountModel.class);
+    }
+
+    public DataModel saveData(LinkModel model) throws IOException, InterruptedException {
+        HttpRequest req = HttpRequest.newBuilder()
+                .uri(URI.create("https://link.samifying.com/api/data"))
+                .header("Content-Type", "application/json")
+                .POST(HttpRequest.BodyPublishers.ofString(mapper.writeValueAsString(model)))
+                .build();
+        HttpResponse<String> json = client.send(req, HttpResponse.BodyHandlers.ofString());
+        handleStatusCode(json);
+        return mapper.readValue(json.body(), DataModel.class);
+    }
+
+    public void deleteData(String userId) throws IOException, InterruptedException {
+        HttpRequest req = HttpRequest.newBuilder()
+                .uri(URI.create("https://link.samifying.com/api/data/discord/" + userId))
+                .DELETE()
+                .build();
+        handleStatusCode(client.send(req, HttpResponse.BodyHandlers.ofString()));
+    }
+
+    private void handleStatusCode(@NotNull HttpResponse<String> rsp) throws JsonProcessingException {
         int code = rsp.statusCode();
         if (code == 200 || code == 204) {
             return;
         }
-        throw new ServiceException("Response code " + code);
+        if (code == 500) {
+            ErrorModel model = mapper.readValue(rsp.body(), ErrorModel.class);
+            throw new RuntimeException(model.getMessage());
+        }
+        throw new RuntimeException("Response code " + code);
     }
 }

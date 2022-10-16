@@ -10,8 +10,9 @@ import org.bukkit.Server;
 import org.bukkit.entity.Player;
 
 import java.awt.*;
-import java.util.ArrayList;
+import java.time.Instant;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
 public class StatusCommand implements SlashCommand {
@@ -21,14 +22,23 @@ public class StatusCommand implements SlashCommand {
     @Override
     public void execute(SlashCommandEvent event) {
         Server server = plugin.getServer();
-        List<Player> players = new ArrayList<>(server.getOnlinePlayers());
-        event.getHook().sendMessageEmbeds(new EmbedBuilder()
+        String address = plugin.getConfig().getString("minecraft.address");
+        List<String> players = server.getOnlinePlayers().stream().map(Player::getName).collect(Collectors.toList());
+        EmbedBuilder builder = new EmbedBuilder()
                 .setColor(Color.GRAY)
                 .setTitle(MarkdownUtil.bold("Server status"))
+                .setThumbnail("https://api.mcsrvstat.us/icon/" + address)
                 .addField("Online:", String.valueOf(players.size()), true)
                 .addField("Max:", String.valueOf(server.getMaxPlayers()), true)
-                .addField("List:", players.toString(), false)
-                .build()).queue();
+                .addField("Version:", server.getVersion(), false)
+                .setTimestamp(Instant.now());
+
+        if (players.size() > 0) {
+            builder.addField("List:", players.toString(), false);
+        }
+
+        // Send response
+        event.getHook().sendMessageEmbeds(builder.build()).queue();
     }
 
     @Override

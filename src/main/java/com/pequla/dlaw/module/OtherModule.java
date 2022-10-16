@@ -1,10 +1,12 @@
 package com.pequla.dlaw.module;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.pequla.dlaw.DLAW;
+import com.pequla.dlaw.service.DataService;
 import lombok.RequiredArgsConstructor;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.utils.MarkdownUtil;
-import org.apache.commons.lang3.StringUtils;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
@@ -17,11 +19,15 @@ import org.bukkit.event.world.WorldLoadEvent;
 import org.jetbrains.annotations.NotNull;
 
 import java.awt.*;
+import java.io.IOException;
+import java.io.InputStream;
 import java.time.Instant;
 
 @RequiredArgsConstructor
 public class OtherModule implements Listener {
 
+    private static final InputStream ADVANCEMENTS = OtherModule.class.getClassLoader()
+            .getResourceAsStream("advancements.json");
     private final DLAW plugin;
 
     @EventHandler
@@ -73,15 +79,25 @@ public class OtherModule implements Listener {
             if (advancement[0].equalsIgnoreCase("recipes")) {
                 return;
             }
-            String category = StringUtils.capitalize(advancement[0]);
-            String name = StringUtils.capitalize(advancement[1].replace("_", " "));
-            String format = String.format("%s: %s", category, name);
 
-            Player player = event.getPlayer();
-            plugin.sendPlayerEmbed(player, "color.advancement", new EmbedBuilder()
-                    .setDescription(MarkdownUtil.bold(player.getName() + " made an advancement"))
-                    .addField("Advancement:", format, false));
+            ObjectMapper mapper = DataService.getInstance().getMapper();
+            String category = advancement[0];
+            String key = advancement[1];
 
+            try {
+                //minecraft:adventure/kill_a_mob
+                ObjectNode node = mapper.readValue(ADVANCEMENTS, ObjectNode.class);
+                String title = "advancements." + category + "." + key + ".title";
+                String desc = "advancements." + category + "." + key + ".description";
+                if (node.has(title) && node.has(desc)) {
+                    Player player = event.getPlayer();
+                    plugin.sendPlayerEmbed(player, "color.advancement", new EmbedBuilder()
+                            .setDescription(MarkdownUtil.bold(player.getName() + " made an advancement"))
+                            .addField(node.get(title).asText(), node.get(desc).asText(), false));
+                }
+            } catch (IOException e) {
+                plugin.handleException(e);
+            }
         }).start();
     }
 

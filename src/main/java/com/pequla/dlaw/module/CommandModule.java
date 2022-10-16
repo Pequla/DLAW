@@ -1,9 +1,7 @@
 package com.pequla.dlaw.module;
 
 import com.pequla.dlaw.DLAW;
-import com.pequla.dlaw.module.command.SeedCommand;
-import com.pequla.dlaw.module.command.SlashCommand;
-import com.pequla.dlaw.module.command.StatusCommand;
+import com.pequla.dlaw.module.command.*;
 import lombok.RequiredArgsConstructor;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Guild;
@@ -41,6 +39,9 @@ public class CommandModule extends ListenerAdapter {
         // Adding commands
         registerCommand(new StatusCommand(plugin));
         registerCommand(new SeedCommand(plugin));
+        registerCommand(new IpCommand(plugin));
+        registerCommand(new VerifyCommand());
+        registerCommand(new UnverifyCommand());
 
         // Upsert guild commands
         commands.values().forEach(

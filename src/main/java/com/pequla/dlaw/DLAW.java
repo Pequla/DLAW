@@ -80,7 +80,7 @@ public final class DLAW extends JavaPlugin {
     }
 
     public void handleException(Exception e) {
-        getLogger().severe(e.getClass().getName() + ": " + e.getMessage());
+        getLogger().severe(e.getClass().getSimpleName() + ": " + e.getMessage());
     }
 
     public void sendLogEmbed(EmbedBuilder builder) {

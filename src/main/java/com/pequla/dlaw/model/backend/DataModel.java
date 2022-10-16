@@ -1,4 +1,4 @@
-package com.pequla.dlaw.model;
+package com.pequla.dlaw.model.backend;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
