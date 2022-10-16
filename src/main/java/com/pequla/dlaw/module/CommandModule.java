@@ -5,6 +5,7 @@ import com.pequla.dlaw.module.command.*;
 import lombok.RequiredArgsConstructor;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Guild;
+import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.events.ReadyEvent;
 import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
@@ -42,6 +43,7 @@ public class CommandModule extends ListenerAdapter {
         registerCommand(new IpCommand(plugin));
         registerCommand(new VerifyCommand());
         registerCommand(new UnverifyCommand());
+        registerCommand(new RconCommand(plugin));
 
         // Upsert guild commands
         commands.values().forEach(
@@ -55,7 +57,21 @@ public class CommandModule extends ListenerAdapter {
             String name = event.getName();
             if (commands.containsKey(name)) {
                 event.deferReply().queue();
-                commands.get(name).execute(event);
+
+                SlashCommand command = commands.get(name);
+                if (command.isAdminOnly()) {
+                    Member member = event.getMember();
+                    String role = plugin.getConfig().getString("discord.role.staff");
+                    if (member != null && member.getRoles().stream().anyMatch(r -> r.getId().equals(role))) {
+                        command.execute(event);
+                        return;
+                    }
+
+                    // Not admin
+                    throw new RuntimeException("You don't have the permission to use this command");
+                }
+                // Regular command
+                command.execute(event);
             }
         } catch (Exception e) {
             e.printStackTrace();
