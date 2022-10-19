@@ -23,7 +23,7 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
-public class RestModule implements Runnable{
+public class RestModule implements Runnable {
 
     private final DLAW main;
     private final Server server;
@@ -40,6 +40,7 @@ public class RestModule implements Runnable{
         // Check if enabled
         if (!config.getBoolean("api.enable")) return;
 
+        main.getLogger().info("Enabling REST API");
         DataService service = DataService.getInstance();
         Spark.port(config.getInt("api.port"));
         Spark.after((request, response) -> {
@@ -47,6 +48,23 @@ public class RestModule implements Runnable{
             response.header("Access-Control-Allow-Methods", "*");
             response.type("application/json");
         });
+
+        Spark.get("/api/members", ((request, response) -> {
+            Guild guild = main.getJda().getGuildById(config.getString("discord.guild"));
+            if (guild == null) {
+                response.status(500);
+                generateError("Guild not found");
+            }
+            return service.getMapper().writeValueAsString(guild.getMembers().stream()
+                    .filter(m -> !m.getUser().isBot())
+                    .map(m -> DiscordModel.builder()
+                            .id(m.getId())
+                            .name(m.getUser().getAsTag())
+                            .nickname(m.getEffectiveName())
+                            .avatar(m.getEffectiveAvatarUrl())
+                            .build())
+                    .collect(Collectors.toList()));
+        }));
 
         Spark.get("/api/status", (request, response) -> {
             List<PluginData> plugins = Arrays.stream(server.getPluginManager().getPlugins())

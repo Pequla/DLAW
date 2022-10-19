@@ -1,6 +1,5 @@
 package com.pequla.dlaw.module;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.pequla.dlaw.DLAW;
 import com.pequla.dlaw.service.DataService;
@@ -20,14 +19,11 @@ import org.jetbrains.annotations.NotNull;
 
 import java.awt.*;
 import java.io.IOException;
-import java.io.InputStream;
 import java.time.Instant;
 
 @RequiredArgsConstructor
 public class OtherModule implements Listener {
 
-    private static final InputStream ADVANCEMENTS = OtherModule.class.getClassLoader()
-            .getResourceAsStream("advancements.json");
     private final DLAW plugin;
 
     @EventHandler
@@ -79,14 +75,12 @@ public class OtherModule implements Listener {
             if (advancement[0].equalsIgnoreCase("recipes")) {
                 return;
             }
-
-            ObjectMapper mapper = DataService.getInstance().getMapper();
             String category = advancement[0];
             String key = advancement[1];
 
             try {
                 //minecraft:adventure/kill_a_mob
-                ObjectNode node = mapper.readValue(ADVANCEMENTS, ObjectNode.class);
+                ObjectNode node = DataService.getInstance().getAdvancements();
                 String title = "advancements." + category + "." + key + ".title";
                 String desc = "advancements." + category + "." + key + ".description";
                 if (node.has(title) && node.has(desc)) {

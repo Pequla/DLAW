@@ -3,6 +3,7 @@ package com.pequla.dlaw.service;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.pequla.dlaw.PluginUtils;
 import com.pequla.dlaw.model.backend.AccountModel;
@@ -13,6 +14,7 @@ import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
@@ -22,6 +24,7 @@ import java.net.http.HttpResponse;
 public class DataService {
 
     private static DataService instance;
+    private static ObjectNode advancements;
 
     private final HttpClient client;
     private final ObjectMapper mapper;
@@ -96,5 +99,13 @@ public class DataService {
             throw new RuntimeException(model.getMessage());
         }
         throw new RuntimeException("Response code " + code);
+    }
+
+    public ObjectNode getAdvancements() throws IOException {
+        if (advancements == null) {
+            InputStream is = DataService.class.getClassLoader().getResourceAsStream("advancements.json");
+            advancements = mapper.readValue(is, ObjectNode.class);
+        }
+        return advancements;
     }
 }
