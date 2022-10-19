@@ -28,11 +28,13 @@ public class RestModule implements Runnable {
     private final DLAW main;
     private final Server server;
     private final FileConfiguration config;
+    private final ObjectMapper mapper;
 
     public RestModule(DLAW main) {
         this.main = main;
         this.server = main.getServer();
         this.config = main.getConfig();
+        this.mapper = new ObjectMapper();
     }
 
     @Override
@@ -41,7 +43,6 @@ public class RestModule implements Runnable {
         if (!config.getBoolean("api.enable")) return;
 
         main.getLogger().info("Enabling REST API");
-        DataService service = DataService.getInstance();
         Spark.port(config.getInt("api.port"));
         Spark.after((request, response) -> {
             response.header("Access-Control-Allow-Origin", "*");
@@ -55,7 +56,7 @@ public class RestModule implements Runnable {
                 response.status(500);
                 generateError("Guild not found");
             }
-            return service.getMapper().writeValueAsString(guild.getMembers().stream()
+            return mapper.writeValueAsString(guild.getMembers().stream()
                     .filter(m -> !m.getUser().isBot())
                     .map(m -> DiscordModel.builder()
                             .id(m.getId())
@@ -66,37 +67,28 @@ public class RestModule implements Runnable {
                     .collect(Collectors.toList()));
         }));
 
-        Spark.get("/api/status", (request, response) -> {
-            List<PluginData> plugins = Arrays.stream(server.getPluginManager().getPlugins())
-                    .map(plugin -> {
-                        PluginDescriptionFile desc = plugin.getDescription();
-                        return PluginData.builder()
-                                .name(plugin.getName())
-                                .version(desc.getVersion())
-                                .authors(desc.getAuthors())
-                                .description(desc.getDescription())
-                                .website(desc.getWebsite())
-                                .build();
-                    })
-                    .collect(Collectors.toList());
+        Spark.get("/api/players", ((request, response) ->
+                mapper.writeValueAsString(main.getServer().getOfflinePlayers())));
 
-            World world = server.getWorlds().get(0);
-            return service.getMapper().writeValueAsString(ServerStatus.builder()
-                    .players(getPlayerStatus())
-                    .plugins(plugins)
-                    .world(WorldData.builder()
-                            .seed(String.valueOf(world.getSeed()))
-                            .time(world.getTime())
-                            .type(server.getWorldType())
-                            .build())
-                    .version(server.getVersion())
-                    .build());
-        });
+        Spark.get("/api/status", (request, response) ->
+                mapper.writeValueAsString(ServerStatus.builder()
+                        .players(getPlayerStatus())
+                        .plugins(getPluginData())
+                        .world(getWorldData())
+                        .version(server.getVersion())
+                        .build()));
 
         Spark.get("/api/status/players", (request, response) ->
-                service.getMapper().writeValueAsString(getPlayerStatus()));
+                mapper.writeValueAsString(getPlayerStatus()));
+
+        Spark.get("/api/status/plugins", (request, response) ->
+                mapper.writeValueAsString(getPluginData()));
+
+        Spark.get("/api/status/world", (request, response) ->
+                mapper.writeValueAsString(getPlayerStatus()));
 
         Spark.get("/api/user", (request, response) -> {
+            DataService service = DataService.getInstance();
             String uuid = request.queryParams("uuid");
             if (uuid != null) {
                 UUID converted;
@@ -164,6 +156,30 @@ public class RestModule implements Runnable {
                 .max(server.getMaxPlayers())
                 .online(list.size())
                 .list(list)
+                .build();
+    }
+
+    private List<PluginData> getPluginData() {
+        return Arrays.stream(server.getPluginManager().getPlugins())
+                .map(plugin -> {
+                    PluginDescriptionFile desc = plugin.getDescription();
+                    return PluginData.builder()
+                            .name(plugin.getName())
+                            .version(desc.getVersion())
+                            .authors(desc.getAuthors())
+                            .description(desc.getDescription())
+                            .website(desc.getWebsite())
+                            .build();
+                })
+                .collect(Collectors.toList());
+    }
+
+    private WorldData getWorldData() {
+        World world = server.getWorlds().get(0);
+        return WorldData.builder()
+                .seed(String.valueOf(world.getSeed()))
+                .time(world.getTime())
+                .type(server.getWorldType())
                 .build();
     }
 }

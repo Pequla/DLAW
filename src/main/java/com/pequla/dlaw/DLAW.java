@@ -11,6 +11,7 @@ import net.dv8tion.jda.api.entities.SelfUser;
 import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.requests.GatewayIntent;
 import net.dv8tion.jda.api.utils.MarkdownUtil;
+import net.dv8tion.jda.api.utils.MemberCachePolicy;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -38,6 +39,7 @@ public final class DLAW extends JavaPlugin {
                     .enableIntents(GatewayIntent.GUILD_MEMBERS)
                     .enableIntents(GatewayIntent.DIRECT_MESSAGES)
                     .enableIntents(GatewayIntent.GUILD_MESSAGES)
+                    .setMemberCachePolicy(MemberCachePolicy.ALL)
                     .addEventListeners(chatModule)
                     .addEventListeners(new CommandModule(this))
                     .build();
