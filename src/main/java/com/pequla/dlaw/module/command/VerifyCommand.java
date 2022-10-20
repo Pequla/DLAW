@@ -1,7 +1,7 @@
 package com.pequla.dlaw.module.command;
 
 import com.pequla.dlaw.PluginUtils;
-import com.pequla.dlaw.model.backend.AccountModel;
+import com.pequla.dlaw.model.PlayerData;
 import com.pequla.dlaw.model.backend.DataModel;
 import com.pequla.dlaw.model.backend.LinkModel;
 import com.pequla.dlaw.service.DataService;
@@ -27,7 +27,7 @@ public class VerifyCommand implements SlashCommand {
         }
         try {
             DataService service = DataService.getInstance();
-            AccountModel account = service.getAccount(option.getAsString());
+            PlayerData account = service.getAccount(option.getAsString());
             User user = event.getUser();
             DataModel data = service.saveData(LinkModel.builder()
                     .uuid(account.getId())

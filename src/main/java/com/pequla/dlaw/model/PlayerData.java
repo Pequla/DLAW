@@ -1,14 +1,16 @@
 package com.pequla.dlaw.model;
 
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
+@AllArgsConstructor
 @NoArgsConstructor
 @Getter
 @Setter
+@Builder
 public class PlayerData {
+    private String id;
     private String name;
     private String displayName;
-    private String id;
+    private Long firstPlayed;
+    private Long lastPlayed;
 }

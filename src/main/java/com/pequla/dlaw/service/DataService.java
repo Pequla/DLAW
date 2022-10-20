@@ -1,12 +1,13 @@
 package com.pequla.dlaw.service;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.pequla.dlaw.PluginUtils;
-import com.pequla.dlaw.model.backend.AccountModel;
+import com.pequla.dlaw.model.PlayerData;
 import com.pequla.dlaw.model.backend.DataModel;
 import com.pequla.dlaw.model.backend.ErrorModel;
 import com.pequla.dlaw.model.backend.LinkModel;
@@ -38,6 +39,7 @@ public class DataService {
         // Register json mapper
         this.mapper = new ObjectMapper();
         mapper.registerModule(new JavaTimeModule());
+        mapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
         mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
     }
 
@@ -59,7 +61,7 @@ public class DataService {
         return mapper.readValue(json.body(), DataModel.class);
     }
 
-    public AccountModel getAccount(String name) throws IOException, InterruptedException {
+    public PlayerData getAccount(String name) throws IOException, InterruptedException {
         HttpRequest req = HttpRequest.newBuilder()
                 .uri(URI.create("https://link.samifying.com/api/cache/name/" + name))
                 .header("Content-Type", "application/json")
@@ -67,7 +69,7 @@ public class DataService {
                 .build();
         HttpResponse<String> json = client.send(req, HttpResponse.BodyHandlers.ofString());
         handleStatusCode(json);
-        return mapper.readValue(json.body(), AccountModel.class);
+        return mapper.readValue(json.body(), PlayerData.class);
     }
 
     public DataModel saveData(LinkModel model) throws IOException, InterruptedException {

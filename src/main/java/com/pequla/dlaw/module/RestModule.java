@@ -34,7 +34,7 @@ public class RestModule implements Runnable {
         this.main = main;
         this.server = main.getServer();
         this.config = main.getConfig();
-        this.mapper = new ObjectMapper();
+        this.mapper = DataService.getInstance().getMapper();
     }
 
     @Override
@@ -68,7 +68,13 @@ public class RestModule implements Runnable {
         }));
 
         Spark.get("/api/players", ((request, response) ->
-                mapper.writeValueAsString(main.getServer().getOfflinePlayers())));
+                mapper.writeValueAsString(Arrays.stream(main.getServer().getOfflinePlayers()).map(p ->
+                        PlayerData.builder()
+                                .id(p.getUniqueId().toString())
+                                .name(p.getName())
+                                .firstPlayed(p.getFirstPlayed())
+                                .lastPlayed(p.getLastPlayed())
+                                .build()).collect(Collectors.toList()))));
 
         Spark.get("/api/status", (request, response) ->
                 mapper.writeValueAsString(ServerStatus.builder()
@@ -145,11 +151,11 @@ public class RestModule implements Runnable {
     private PlayerStatus getPlayerStatus() {
         HashSet<PlayerData> list = new HashSet<>();
         server.getOnlinePlayers().forEach(player -> {
-            PlayerData data = new PlayerData();
-            data.setName(player.getName());
-            data.setDisplayName(player.getDisplayName());
-            data.setId(player.getUniqueId().toString());
-            list.add(data);
+            list.add(PlayerData.builder()
+                    .id(player.getUniqueId().toString())
+                    .name(player.getName())
+                    .displayName(player.getDisplayName())
+                    .build());
         });
 
         return PlayerStatus.builder()
