@@ -102,7 +102,7 @@ public final class DLAW extends JavaPlugin {
         if (players.containsKey(player.getUniqueId())) {
             DiscordModel model = players.get(player.getUniqueId());
             sendLogEmbed(builder.setColor(getConfig().getInt(colorPath))
-                    .setAuthor(model.getName(), null, model.getAvatar())
+                    .setAuthor(model.getNickname(), null, model.getAvatar())
                     .setThumbnail(getMinecraftAvatarUrl(player))
                     .setFooter(model.getId()));
         }

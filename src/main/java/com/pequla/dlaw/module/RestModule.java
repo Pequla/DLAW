@@ -91,7 +91,7 @@ public class RestModule implements Runnable {
                 mapper.writeValueAsString(getPluginData()));
 
         Spark.get("/api/status/world", (request, response) ->
-                mapper.writeValueAsString(getPlayerStatus()));
+                mapper.writeValueAsString(getWorldData()));
 
         Spark.get("/api/user", (request, response) -> {
             DataService service = DataService.getInstance();
@@ -129,7 +129,8 @@ public class RestModule implements Runnable {
                     }
                     return service.getMapper().writeValueAsString(DiscordModel.builder()
                             .id(member.getId())
-                            .name(MarkdownSanitizer.sanitize(member.getEffectiveName()))
+                            .name(MarkdownSanitizer.sanitize(member.getUser().getAsTag()))
+                            .nickname(MarkdownSanitizer.sanitize(member.getEffectiveName()))
                             .avatar(member.getEffectiveAvatarUrl())
                             .build());
                 }
