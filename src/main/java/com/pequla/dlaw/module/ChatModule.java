@@ -59,7 +59,7 @@ public class ChatModule extends ListenerAdapter implements Listener {
             TextChannel channel = plugin.getJda().getTextChannelById(config.getLong("discord.channel.chat"));
             if (channel != null) {
                 channel.sendMessage(
-                        MarkdownUtil.bold(player.getName()) + ": '" + MarkdownSanitizer.sanitize(event.getMessage() + "`")
+                        MarkdownUtil.bold(player.getName()) + ": `" + MarkdownSanitizer.sanitize(event.getMessage()) + "`"
                 ).queue();
             }
         }).start();
