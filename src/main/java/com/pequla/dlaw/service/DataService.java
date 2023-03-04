@@ -7,6 +7,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.pequla.dlaw.PluginUtils;
+import com.pequla.dlaw.model.DiscordModel;
 import com.pequla.dlaw.model.PlayerData;
 import com.pequla.dlaw.model.backend.DataModel;
 import com.pequla.dlaw.model.backend.ErrorModel;
@@ -70,6 +71,17 @@ public class DataService {
         HttpResponse<String> json = client.send(req, HttpResponse.BodyHandlers.ofString());
         handleStatusCode(json);
         return mapper.readValue(json.body(), PlayerData.class);
+    }
+
+    public DiscordModel lookupForName(String name) throws IOException, InterruptedException {
+        HttpRequest req = HttpRequest.newBuilder()
+                .uri(URI.create("https://link.samifying.com/api/lookup/" + name))
+                .header("Content-Type", "application/json")
+                .GET()
+                .build();
+        HttpResponse<String> json = client.send(req, HttpResponse.BodyHandlers.ofString());
+        handleStatusCode(json);
+        return mapper.readValue(json.body(), DiscordModel.class);
     }
 
     public DataModel saveData(LinkModel model) throws IOException, InterruptedException {

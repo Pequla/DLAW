@@ -72,8 +72,6 @@ public class RestModule implements Runnable {
                         PlayerData.builder()
                                 .id(p.getUniqueId().toString())
                                 .name(p.getName())
-                                .firstPlayed(p.getFirstPlayed())
-                                .lastPlayed(p.getLastPlayed())
                                 .build()).collect(Collectors.toList()))));
 
         Spark.get("/api/status", (request, response) ->
@@ -155,7 +153,6 @@ public class RestModule implements Runnable {
             list.add(PlayerData.builder()
                     .id(player.getUniqueId().toString())
                     .name(player.getName())
-                    .displayName(player.getDisplayName())
                     .build());
         });
 

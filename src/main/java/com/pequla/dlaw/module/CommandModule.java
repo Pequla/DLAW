@@ -44,6 +44,7 @@ public class CommandModule extends ListenerAdapter {
         registerCommand(new VerifyCommand());
         registerCommand(new UnverifyCommand());
         registerCommand(new RconCommand(plugin));
+        registerCommand(new LookupCommand());
 
         // Upsert guild commands
         commands.values().forEach(
