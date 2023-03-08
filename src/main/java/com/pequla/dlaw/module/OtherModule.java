@@ -54,16 +54,17 @@ public class OtherModule implements Listener {
             plugin.sendPlayerEmbed(player, "color.death",
                     new EmbedBuilder().setDescription(MarkdownUtil.bold(event.getDeathMessage())));
             // Send death cords to player
-            plugin.getJda().openPrivateChannelById(plugin.getPlayers().get(player.getUniqueId()).getId()).queue(ch -> ch.sendMessageEmbeds(new EmbedBuilder()
-                    .setColor(Color.GRAY)
-                    .setThumbnail(plugin.getMinecraftAvatarUrl(player))
-                    .addField("Death message:", event.getDeathMessage(), false)
-                    .addField("World:", worldName(location.getWorld()), false)
-                    .addField("X:", String.valueOf(location.getBlockX()), true)
-                    .addField("Y:", String.valueOf(location.getBlockY()), true)
-                    .addField("Z:", String.valueOf(location.getBlockZ()), true)
-                    .setTimestamp(Instant.now())
-                    .build()).queue());
+            if (plugin.getConfig().getBoolean("discord.dm-death-cords"))
+                plugin.getJda().openPrivateChannelById(plugin.getPlayers().get(player.getUniqueId()).getId()).queue(ch -> ch.sendMessageEmbeds(new EmbedBuilder()
+                        .setColor(Color.GRAY)
+                        .setThumbnail(plugin.getMinecraftAvatarUrl(player))
+                        .addField("Death message:", event.getDeathMessage(), false)
+                        .addField("World:", worldName(location.getWorld()), false)
+                        .addField("X:", String.valueOf(location.getBlockX()), true)
+                        .addField("Y:", String.valueOf(location.getBlockY()), true)
+                        .addField("Z:", String.valueOf(location.getBlockZ()), true)
+                        .setTimestamp(Instant.now())
+                        .build()).queue());
         }).start();
     }
 

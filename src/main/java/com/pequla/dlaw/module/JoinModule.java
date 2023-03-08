@@ -71,7 +71,7 @@ public class JoinModule implements Listener {
 
         } catch (ErrorResponseException re) {
             if (re.getErrorResponse() == ErrorResponse.UNKNOWN_MEMBER) {
-                event.disallow(PlayerLoginEvent.Result.KICK_OTHER, "You are not a member of the discord server");
+                event.disallow(PlayerLoginEvent.Result.KICK_OTHER, "You are not a member of the Discord server");
                 return;
             }
             if (re.getErrorResponse() == ErrorResponse.UNKNOWN_USER) {
@@ -79,7 +79,7 @@ public class JoinModule implements Listener {
             }
         } catch (Exception e) {
             // On any error player will get kicked
-            event.disallow(PlayerLoginEvent.Result.KICK_OTHER, e.getMessage());
+            event.disallow(PlayerLoginEvent.Result.KICK_OTHER, "You haven't linked your account");
             plugin.handleException(e);
         }
     }

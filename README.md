@@ -61,6 +61,7 @@ discord:
     chat: 1024426048932302878
   role:
     staff: 707598912768442489
+  dm-death-cords: true
 api:
   enable: true
   port: 8010
