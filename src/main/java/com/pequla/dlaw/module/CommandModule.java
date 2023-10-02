@@ -6,8 +6,8 @@ import lombok.RequiredArgsConstructor;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
-import net.dv8tion.jda.api.events.ReadyEvent;
-import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
+import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
+import net.dv8tion.jda.api.events.session.ReadyEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.dv8tion.jda.api.utils.MarkdownUtil;
 import org.jetbrains.annotations.NotNull;
@@ -41,10 +41,7 @@ public class CommandModule extends ListenerAdapter {
         registerCommand(new StatusCommand(plugin));
         registerCommand(new SeedCommand(plugin));
         registerCommand(new IpCommand(plugin));
-        registerCommand(new VerifyCommand());
-        registerCommand(new UnverifyCommand());
         registerCommand(new RconCommand(plugin));
-        registerCommand(new LookupCommand());
 
         // Upsert guild commands
         commands.values().forEach(
@@ -53,7 +50,7 @@ public class CommandModule extends ListenerAdapter {
     }
 
     @Override
-    public void onSlashCommand(@NotNull SlashCommandEvent event) {
+    public void onSlashCommandInteraction(@NotNull SlashCommandInteractionEvent event) {
         try {
             String name = event.getName();
             if (commands.containsKey(name)) {

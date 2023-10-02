@@ -60,7 +60,7 @@ public class RestModule implements Runnable {
                     .filter(m -> !m.getUser().isBot())
                     .map(m -> DiscordModel.builder()
                             .id(m.getId())
-                            .name(m.getUser().getAsTag())
+                            .name(m.getUser().getEffectiveName())
                             .nickname(m.getEffectiveName())
                             .avatar(m.getEffectiveAvatarUrl())
                             .build())
@@ -127,7 +127,7 @@ public class RestModule implements Runnable {
                     }
                     return service.getMapper().writeValueAsString(DiscordModel.builder()
                             .id(member.getId())
-                            .name(MarkdownSanitizer.sanitize(member.getUser().getAsTag()))
+                            .name(MarkdownSanitizer.sanitize(member.getUser().getEffectiveName()))
                             .nickname(MarkdownSanitizer.sanitize(member.getEffectiveName()))
                             .avatar(member.getEffectiveAvatarUrl())
                             .build());

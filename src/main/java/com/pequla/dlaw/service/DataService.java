@@ -62,47 +62,6 @@ public class DataService {
         return mapper.readValue(json.body(), DataModel.class);
     }
 
-    public PlayerData getAccount(String name) throws IOException, InterruptedException {
-        HttpRequest req = HttpRequest.newBuilder()
-                .uri(URI.create("https://link.samifying.com/api/cache/name/" + name))
-                .header("Content-Type", "application/json")
-                .GET()
-                .build();
-        HttpResponse<String> json = client.send(req, HttpResponse.BodyHandlers.ofString());
-        handleStatusCode(json);
-        return mapper.readValue(json.body(), PlayerData.class);
-    }
-
-    public DiscordModel lookupForName(String name) throws IOException, InterruptedException {
-        HttpRequest req = HttpRequest.newBuilder()
-                .uri(URI.create("https://link.samifying.com/api/lookup/" + name))
-                .header("Content-Type", "application/json")
-                .GET()
-                .build();
-        HttpResponse<String> json = client.send(req, HttpResponse.BodyHandlers.ofString());
-        handleStatusCode(json);
-        return mapper.readValue(json.body(), DiscordModel.class);
-    }
-
-    public DataModel saveData(LinkModel model) throws IOException, InterruptedException {
-        HttpRequest req = HttpRequest.newBuilder()
-                .uri(URI.create("https://link.samifying.com/api/data"))
-                .header("Content-Type", "application/json")
-                .POST(HttpRequest.BodyPublishers.ofString(mapper.writeValueAsString(model)))
-                .build();
-        HttpResponse<String> json = client.send(req, HttpResponse.BodyHandlers.ofString());
-        handleStatusCode(json);
-        return mapper.readValue(json.body(), DataModel.class);
-    }
-
-    public void deleteData(String userId) throws IOException, InterruptedException {
-        HttpRequest req = HttpRequest.newBuilder()
-                .uri(URI.create("https://link.samifying.com/api/data/discord/" + userId))
-                .DELETE()
-                .build();
-        handleStatusCode(client.send(req, HttpResponse.BodyHandlers.ofString()));
-    }
-
     private void handleStatusCode(@NotNull HttpResponse<String> rsp) throws JsonProcessingException {
         int code = rsp.statusCode();
         if (code == 200 || code == 204) {

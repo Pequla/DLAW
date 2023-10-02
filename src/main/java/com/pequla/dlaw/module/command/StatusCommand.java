@@ -3,9 +3,10 @@ package com.pequla.dlaw.module.command;
 import com.pequla.dlaw.DLAW;
 import lombok.RequiredArgsConstructor;
 import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
+import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.interactions.commands.build.CommandData;
 import net.dv8tion.jda.api.utils.MarkdownUtil;
+import net.dv8tion.jda.internal.interactions.CommandDataImpl;
 import org.bukkit.Server;
 import org.bukkit.entity.Player;
 
@@ -20,7 +21,7 @@ public class StatusCommand implements SlashCommand {
     private final DLAW plugin;
 
     @Override
-    public void execute(SlashCommandEvent event) {
+    public void execute(SlashCommandInteractionEvent event) {
         Server server = plugin.getServer();
         String address = plugin.getConfig().getString("minecraft.address");
         List<String> players = server.getOnlinePlayers().stream().map(Player::getName).collect(Collectors.toList());
@@ -43,7 +44,7 @@ public class StatusCommand implements SlashCommand {
 
     @Override
     public CommandData getCommandData() {
-        return new CommandData("status", "Shows server status");
+        return new CommandDataImpl("status", "Shows server status");
     }
 
     @Override

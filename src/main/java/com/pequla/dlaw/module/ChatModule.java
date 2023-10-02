@@ -2,9 +2,9 @@ package com.pequla.dlaw.module;
 
 import com.pequla.dlaw.DLAW;
 import net.dv8tion.jda.api.entities.Message;
-import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.entities.User;
-import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
+import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
+import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.dv8tion.jda.api.utils.MarkdownSanitizer;
 import net.dv8tion.jda.api.utils.MarkdownUtil;
@@ -26,7 +26,7 @@ public class ChatModule extends ListenerAdapter implements Listener {
     }
 
     @Override
-    public void onGuildMessageReceived(@NotNull GuildMessageReceivedEvent event) {
+    public void onMessageReceived(@NotNull MessageReceivedEvent event) {
         User author = event.getAuthor();
         Message message = event.getMessage();
 
@@ -40,13 +40,13 @@ public class ChatModule extends ListenerAdapter implements Listener {
             return;
         }
 
-        TextChannel channel = event.getChannel();
+        TextChannel channel = event.getChannel().asTextChannel();
         Server server = plugin.getServer();
         FileConfiguration config = plugin.getConfig();
 
         // Chat channel
         if (channel.getIdLong() == config.getLong("discord.channel.chat")) {
-            server.broadcastMessage(ChatColor.LIGHT_PURPLE + author.getAsTag() + ": " +
+            server.broadcastMessage(ChatColor.LIGHT_PURPLE + author.getEffectiveName() + ": " +
                     ChatColor.WHITE + content);
         }
     }

@@ -3,12 +3,13 @@ package com.pequla.dlaw.module.command;
 import com.pequla.dlaw.DLAW;
 import lombok.RequiredArgsConstructor;
 import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
+import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.CommandData;
 import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 import net.dv8tion.jda.api.utils.MarkdownUtil;
+import net.dv8tion.jda.internal.interactions.CommandDataImpl;
 import org.bukkit.Server;
 import org.bukkit.command.CommandSender;
 
@@ -21,7 +22,7 @@ public class RconCommand implements SlashCommand {
     private final DLAW plugin;
 
     @Override
-    public void execute(SlashCommandEvent event) {
+    public void execute(SlashCommandInteractionEvent event) {
         Server server = plugin.getServer();
         Logger logger = plugin.getLogger();
 
@@ -56,7 +57,7 @@ public class RconCommand implements SlashCommand {
 
     @Override
     public CommandData getCommandData() {
-        return new CommandData("rcon", "Executes a command on the server").addOptions(
+        return new CommandDataImpl("rcon", "Executes a command on the server").addOptions(
                 new OptionData(OptionType.STRING,
                         "command",
                         "Minecraft command",
