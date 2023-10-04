@@ -8,7 +8,7 @@ import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.entities.Activity;
 import net.dv8tion.jda.api.entities.SelfUser;
-import net.dv8tion.jda.api.entities.TextChannel;
+import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 import net.dv8tion.jda.api.requests.GatewayIntent;
 import net.dv8tion.jda.api.utils.MarkdownUtil;
 import net.dv8tion.jda.api.utils.MemberCachePolicy;
@@ -16,7 +16,6 @@ import org.bukkit.entity.Player;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
 
-import javax.security.auth.login.LoginException;
 import java.time.Instant;
 import java.util.HashMap;
 import java.util.Map;
@@ -64,7 +63,7 @@ public final class DLAW extends JavaPlugin {
             manager.registerEvents(new JoinModule(this), this);
             manager.registerEvents(new OtherModule(this), this);
 
-        } catch (LoginException e) {
+        } catch (Exception e) {
             handleException(e);
         }
     }
