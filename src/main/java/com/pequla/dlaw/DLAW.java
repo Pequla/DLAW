@@ -38,6 +38,7 @@ public final class DLAW extends JavaPlugin {
                     .enableIntents(GatewayIntent.GUILD_MEMBERS)
                     .enableIntents(GatewayIntent.DIRECT_MESSAGES)
                     .enableIntents(GatewayIntent.GUILD_MESSAGES)
+                    .enableIntents(GatewayIntent.MESSAGE_CONTENT)
                     .setMemberCachePolicy(MemberCachePolicy.ALL)
                     .addEventListeners(chatModule)
                     .addEventListeners(new CommandModule(this))
