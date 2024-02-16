@@ -1,6 +1,8 @@
 package com.pequla.dlaw.module;
 
 import com.pequla.dlaw.DLAW;
+import com.pequla.dlaw.PluginUtils;
+import com.pequla.dlaw.model.backend.BanModel;
 import com.pequla.dlaw.model.backend.DataModel;
 import com.pequla.dlaw.model.DiscordModel;
 import com.pequla.dlaw.service.DataService;
@@ -50,7 +52,22 @@ public class JoinModule implements Listener {
         // Checking if player has been verified
         try {
             DataService service = DataService.getInstance();
-            DataModel model = service.getData(player.getUniqueId().toString().replace("-", ""));
+            DataModel model = service.getData(PluginUtils.cleanUUID(player.getUniqueId()));
+
+            // Check if user is globally banned
+            if (config.getBoolean("discord.include-global-bans")) {
+                try {
+                    BanModel ban = service.getBanByUserDiscordId(model.getUser().getDiscordId());
+                    String reason = ban.getReason();
+                    if (reason == null) reason = "You have been globally banned";
+
+                    plugin.getLogger().info("Player banned: " + reason);
+                    event.disallow(PlayerLoginEvent.Result.KICK_OTHER, reason);
+                    return;
+                } catch (Exception ignored) {
+                    plugin.getLogger().info("No global ban found for player");
+                }
+            }
 
             Guild guild = plugin.getJda().getGuildById(config.getLong("discord.guild"));
             if (guild == null) {

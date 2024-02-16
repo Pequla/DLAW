@@ -7,8 +7,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.pequla.dlaw.PluginUtils;
-import com.pequla.dlaw.model.DiscordModel;
 import com.pequla.dlaw.model.PlayerData;
+import com.pequla.dlaw.model.backend.BanModel;
 import com.pequla.dlaw.model.backend.DataModel;
 import com.pequla.dlaw.model.backend.ErrorModel;
 import com.pequla.dlaw.model.backend.LinkModel;
@@ -60,6 +60,51 @@ public class DataService {
         HttpResponse<String> json = client.send(req, HttpResponse.BodyHandlers.ofString());
         handleStatusCode(json);
         return mapper.readValue(json.body(), DataModel.class);
+    }
+
+    public BanModel getBanByUserDiscordId(String id) throws IOException, InterruptedException {
+        HttpRequest req = HttpRequest.newBuilder()
+                .uri(URI.create("https://link.samifying.com/api/ban/user/" + id))
+                .header("Content-Type", "application/json")
+                .GET()
+                .build();
+        HttpResponse<String> json = client.send(req, HttpResponse.BodyHandlers.ofString());
+        handleStatusCode(json);
+        return mapper.readValue(json.body(), BanModel.class);
+    }
+
+    public PlayerData getAccount(String name) throws IOException, InterruptedException {
+        HttpRequest req = HttpRequest.newBuilder()
+                .uri(URI.create("https://link.samifying.com/api/cache/name/" + name))
+                .header("Content-Type", "application/json")
+                .GET()
+                .build();
+        HttpResponse<String> json = client.send(req, HttpResponse.BodyHandlers.ofString());
+        handleStatusCode(json);
+        return mapper.readValue(json.body(), PlayerData.class);
+    }
+
+    public DataModel saveData(LinkModel model, String user, String token) throws IOException, InterruptedException {
+        HttpRequest req = HttpRequest.newBuilder()
+                .uri(URI.create("https://link.samifying.com/api/data"))
+                .header("Content-Type", "application/json")
+                .header("x-user", user)
+                .header("x-token", token)
+                .POST(HttpRequest.BodyPublishers.ofString(mapper.writeValueAsString(model)))
+                .build();
+        HttpResponse<String> json = client.send(req, HttpResponse.BodyHandlers.ofString());
+        handleStatusCode(json);
+        return mapper.readValue(json.body(), DataModel.class);
+    }
+
+    public void deleteData(String userId, String user, String token) throws IOException, InterruptedException {
+        HttpRequest req = HttpRequest.newBuilder()
+                .uri(URI.create("https://link.samifying.com/api/data/discord/" + userId))
+                .header("x-user", user)
+                .header("x-token", token)
+                .DELETE()
+                .build();
+        handleStatusCode(client.send(req, HttpResponse.BodyHandlers.ofString()));
     }
 
     private void handleStatusCode(@NotNull HttpResponse<String> rsp) throws JsonProcessingException {

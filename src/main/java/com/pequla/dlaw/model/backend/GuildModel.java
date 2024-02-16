@@ -11,10 +11,8 @@ import java.time.LocalDateTime;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class DataModel {
+public class GuildModel {
     private Integer id;
-    private String uuid;
-    private UserModel user;
-    private GuildModel guild;
+    private String discordId;
     private LocalDateTime createdAt;
 }

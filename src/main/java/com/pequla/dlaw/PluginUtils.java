@@ -10,4 +10,8 @@ public class PluginUtils {
     public static String cleanUUID(String uuid) {
         return uuid.replace("-", "");
     }
+
+    public static String playerBustUrl(String uuid) {
+        return "https://visage.surgeplay.com/bust/" + cleanUUID(uuid);
+    }
 }

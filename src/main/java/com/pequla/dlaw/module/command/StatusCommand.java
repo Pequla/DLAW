@@ -8,9 +8,9 @@ import net.dv8tion.jda.api.interactions.commands.build.CommandData;
 import net.dv8tion.jda.api.utils.MarkdownUtil;
 import net.dv8tion.jda.internal.interactions.CommandDataImpl;
 import org.bukkit.Server;
+import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
 
-import java.awt.*;
 import java.time.Instant;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -23,10 +23,11 @@ public class StatusCommand implements SlashCommand {
     @Override
     public void execute(SlashCommandInteractionEvent event) {
         Server server = plugin.getServer();
-        String address = plugin.getConfig().getString("minecraft.address");
+        FileConfiguration config = plugin.getConfig();
+        String address = config.getString("minecraft.address");
         List<String> players = server.getOnlinePlayers().stream().map(Player::getName).collect(Collectors.toList());
         EmbedBuilder builder = new EmbedBuilder()
-                .setColor(Color.GRAY)
+                .setColor(config.getInt("color.command"))
                 .setTitle(MarkdownUtil.bold("Server status"))
                 .setThumbnail("https://api.mcsrvstat.us/icon/" + address)
                 .addField("Online:", String.valueOf(players.size()), true)

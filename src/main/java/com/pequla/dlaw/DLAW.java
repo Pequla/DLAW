@@ -25,13 +25,16 @@ import java.util.UUID;
 public final class DLAW extends JavaPlugin {
 
     private final Map<UUID, DiscordModel> players = new HashMap<>();
+    private ChatModule chatModule;
+    private CommandModule commandModule;
     private JDA jda;
 
     @Override
     public void onEnable() {
         try {
             saveDefaultConfig();
-            ChatModule chatModule = new ChatModule(this);
+            chatModule = new ChatModule(this);
+            commandModule = new CommandModule(this);
 
             jda = JDABuilder.createDefault(getConfig().getString("discord.token"))
                     .setActivity(Activity.playing("Minecraft"))
@@ -41,7 +44,7 @@ public final class DLAW extends JavaPlugin {
                     .enableIntents(GatewayIntent.MESSAGE_CONTENT)
                     .setMemberCachePolicy(MemberCachePolicy.ALL)
                     .addEventListeners(chatModule)
-                    .addEventListeners(new CommandModule(this))
+                    .addEventListeners(commandModule)
                     .build();
             try {
                 jda.awaitReady();

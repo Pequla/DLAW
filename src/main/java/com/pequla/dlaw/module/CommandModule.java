@@ -10,6 +10,7 @@ import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEve
 import net.dv8tion.jda.api.events.session.ReadyEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.dv8tion.jda.api.utils.MarkdownUtil;
+import org.bukkit.configuration.file.FileConfiguration;
 import org.jetbrains.annotations.NotNull;
 
 import java.awt.*;
@@ -26,7 +27,8 @@ public class CommandModule extends ListenerAdapter {
     @Override
     public void onReady(@NotNull ReadyEvent event) {
         // Retrieve guild id
-        String id = plugin.getConfig().getString("discord.guild");
+        FileConfiguration config = plugin.getConfig();
+        String id = config.getString("discord.guild");
         if (id == null) {
             throw new RuntimeException("Discord guild not set");
         }
@@ -42,6 +44,13 @@ public class CommandModule extends ListenerAdapter {
         registerCommand(new SeedCommand(plugin));
         registerCommand(new IpCommand(plugin));
         registerCommand(new RconCommand(plugin));
+        registerCommand(new LookupCommand(plugin));
+
+        // Adding authenticated commands
+        if (config.getBoolean("auth.enabled")) {
+            registerCommand(new VerifyCommand(plugin));
+            registerCommand(new UnverifyCommand(plugin));
+        }
 
         // Upsert guild commands
         commands.values().forEach(
@@ -82,7 +91,7 @@ public class CommandModule extends ListenerAdapter {
         }
     }
 
-    private void registerCommand(SlashCommand command) {
+    public void registerCommand(SlashCommand command) {
         plugin.getLogger().info("Registering command " + command.getClass().getSimpleName());
         commands.put(command.getCommandData().getName(), command);
     }

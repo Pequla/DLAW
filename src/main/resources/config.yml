@@ -6,14 +6,20 @@ discord:
   role:
     staff: 707598912768442489
   dm-death-cords: true
+  include-global-bans: true
 api:
   enable: true
   port: 8010
 minecraft:
   address: fluxsmp.pequla.com
 color:
+  command: 65535
   system: 65535
   join: 65280
   leave: 16711680
   death: 16749128
   advancement: 16751104
+auth:
+  enabled: true
+  user: 358236836113547265
+  token: value

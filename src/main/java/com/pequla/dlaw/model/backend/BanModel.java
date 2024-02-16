@@ -11,10 +11,10 @@ import java.time.LocalDateTime;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class DataModel {
+public class BanModel {
     private Integer id;
-    private String uuid;
     private UserModel user;
-    private GuildModel guild;
+    private AdminModel admin;
+    private String reason;
     private LocalDateTime createdAt;
 }
