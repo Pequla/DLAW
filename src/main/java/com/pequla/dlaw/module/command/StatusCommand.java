@@ -1,7 +1,6 @@
 package com.pequla.dlaw.module.command;
 
 import com.pequla.dlaw.DLAW;
-import lombok.RequiredArgsConstructor;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.interactions.commands.build.CommandData;
@@ -15,13 +14,10 @@ import java.time.Instant;
 import java.util.List;
 import java.util.stream.Collectors;
 
-@RequiredArgsConstructor
 public class StatusCommand implements SlashCommand {
 
-    private final DLAW plugin;
-
     @Override
-    public void execute(SlashCommandInteractionEvent event) {
+    public void execute(SlashCommandInteractionEvent event, DLAW plugin) {
         Server server = plugin.getServer();
         FileConfiguration config = plugin.getConfig();
         String address = config.getString("minecraft.address");

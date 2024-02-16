@@ -1,7 +1,6 @@
 package com.pequla.dlaw.module.command;
 
 import com.pequla.dlaw.DLAW;
-import lombok.RequiredArgsConstructor;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
@@ -16,13 +15,10 @@ import org.bukkit.command.CommandSender;
 import java.awt.*;
 import java.util.logging.Logger;
 
-@RequiredArgsConstructor
 public class RconCommand implements SlashCommand {
 
-    private final DLAW plugin;
-
     @Override
-    public void execute(SlashCommandInteractionEvent event) {
+    public void execute(SlashCommandInteractionEvent event, DLAW plugin) {
         Server server = plugin.getServer();
         Logger logger = plugin.getLogger();
 

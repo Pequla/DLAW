@@ -5,7 +5,6 @@ import com.pequla.dlaw.PluginUtils;
 import com.pequla.dlaw.model.PlayerData;
 import com.pequla.dlaw.model.backend.DataModel;
 import com.pequla.dlaw.service.DataService;
-import lombok.RequiredArgsConstructor;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
@@ -18,13 +17,10 @@ import net.dv8tion.jda.internal.interactions.CommandDataImpl;
 import java.io.IOException;
 import java.time.Instant;
 
-@RequiredArgsConstructor
 public class LookupCommand implements SlashCommand {
 
-    private final DLAW plugin;
-
     @Override
-    public void execute(SlashCommandInteractionEvent event) {
+    public void execute(SlashCommandInteractionEvent event, DLAW plugin) {
         OptionMapping option = event.getOption("minecraft-username");
         if (option == null) {
             throw new RuntimeException("Minecraft username is a required command argument");

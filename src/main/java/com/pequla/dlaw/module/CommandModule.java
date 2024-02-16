@@ -23,6 +23,7 @@ public class CommandModule extends ListenerAdapter {
 
     private final Map<String, SlashCommand> commands = new HashMap<>();
     private final DLAW plugin;
+    private Guild guild;
 
     @Override
     public void onReady(@NotNull ReadyEvent event) {
@@ -34,28 +35,23 @@ public class CommandModule extends ListenerAdapter {
         }
 
         // Retrieve guild
-        Guild guild = event.getJDA().getGuildById(id);
+        guild = event.getJDA().getGuildById(id);
         if (guild == null) {
             throw new RuntimeException("Bot is not a member of the main guild");
         }
 
         // Adding commands
-        registerCommand(new StatusCommand(plugin));
-        registerCommand(new SeedCommand(plugin));
-        registerCommand(new IpCommand(plugin));
-        registerCommand(new RconCommand(plugin));
-        registerCommand(new LookupCommand(plugin));
+        registerCommand(new StatusCommand());
+        registerCommand(new SeedCommand());
+        registerCommand(new IpCommand());
+        registerCommand(new RconCommand());
+        registerCommand(new LookupCommand());
 
         // Adding authenticated commands
         if (config.getBoolean("auth.enabled")) {
-            registerCommand(new VerifyCommand(plugin));
-            registerCommand(new UnverifyCommand(plugin));
+            registerCommand(new VerifyCommand());
+            registerCommand(new UnverifyCommand());
         }
-
-        // Upsert guild commands
-        commands.values().forEach(
-                command -> guild.upsertCommand(command.getCommandData()).queue()
-        );
     }
 
     @Override
@@ -70,7 +66,7 @@ public class CommandModule extends ListenerAdapter {
                     Member member = event.getMember();
                     String role = plugin.getConfig().getString("discord.role.staff");
                     if (member != null && member.getRoles().stream().anyMatch(r -> r.getId().equals(role))) {
-                        command.execute(event);
+                        command.execute(event, plugin);
                         return;
                     }
 
@@ -78,7 +74,7 @@ public class CommandModule extends ListenerAdapter {
                     throw new RuntimeException("You don't have the permission to use this command");
                 }
                 // Regular command
-                command.execute(event);
+                command.execute(event, plugin);
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -94,5 +90,6 @@ public class CommandModule extends ListenerAdapter {
     public void registerCommand(SlashCommand command) {
         plugin.getLogger().info("Registering command " + command.getClass().getSimpleName());
         commands.put(command.getCommandData().getName(), command);
+        guild.upsertCommand(command.getCommandData()).queue();
     }
 }
