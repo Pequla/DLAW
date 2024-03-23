@@ -84,7 +84,11 @@ public class JoinModule implements Listener {
                     .avatar(member.getEffectiveAvatarUrl())
                     .build();
             plugin.getPlayers().put(player.getUniqueId(), discord);
-            plugin.getLogger().info(player.getName() + " authenticated as: " + member.getEffectiveName() + " [ID: " + member.getId() + "]");
+            plugin.getLogger().info(PluginUtils.cleanName(player) + " authenticated as: " + member.getEffectiveName() + " [ID: " + member.getId() + "]");
+
+            // Assign verified role
+            String role = config.getString("discord.role.verified");
+            PluginUtils.addRoleToMember(member, role);
 
         } catch (ErrorResponseException re) {
             if (re.getErrorResponse() == ErrorResponse.UNKNOWN_MEMBER) {

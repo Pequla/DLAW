@@ -7,6 +7,9 @@ import com.pequla.dlaw.model.backend.DataModel;
 import com.pequla.dlaw.model.backend.LinkModel;
 import com.pequla.dlaw.service.DataService;
 import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.entities.Guild;
+import net.dv8tion.jda.api.entities.Member;
+import net.dv8tion.jda.api.entities.Role;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
@@ -18,6 +21,7 @@ import net.dv8tion.jda.internal.interactions.CommandDataImpl;
 import org.bukkit.configuration.file.FileConfiguration;
 
 import java.time.Instant;
+import java.util.Objects;
 
 public class VerifyCommand implements SlashCommand {
 
@@ -41,6 +45,12 @@ public class VerifyCommand implements SlashCommand {
                     config.getString("auth.user"),
                     config.getString("auth.token")
             );
+
+            // Adding verified role
+            new Thread(() -> {
+                String role = config.getString("discord.role.verified");
+                PluginUtils.addRoleToMember(event.getMember(), role);
+            }).start();
 
             event.getHook().sendMessage(user.getAsMention() + " You have successfully linked your minecraft account")
                     .addEmbeds(new EmbedBuilder()

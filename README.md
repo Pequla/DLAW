@@ -61,7 +61,9 @@ discord:
     chat: 1024426048932302878
   role:
     staff: 707598912768442489
+    verified: 1221230313271853086
   dm-death-cords: true
+  include-global-bans: true
 api:
   enable: true
   port: 8010

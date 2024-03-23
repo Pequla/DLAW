@@ -1,6 +1,7 @@
 package com.pequla.dlaw.module.command;
 
 import com.pequla.dlaw.DLAW;
+import com.pequla.dlaw.PluginUtils;
 import com.pequla.dlaw.service.DataService;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
@@ -20,6 +21,11 @@ public class UnverifyCommand implements SlashCommand {
                     config.getString("auth.user"),
                     config.getString("auth.token")
             );
+
+            // Adding verified role
+            String role = config.getString("discord.role.verified");
+            PluginUtils.removeRoleFromMember(event.getMember(), role);
+
             event.getHook().sendMessage("You have successfully removed your verification!").queue();
         } catch (Exception ex) {
             throw new RuntimeException(ex);

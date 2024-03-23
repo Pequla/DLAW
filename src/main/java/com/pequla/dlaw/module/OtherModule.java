@@ -2,6 +2,7 @@ package com.pequla.dlaw.module;
 
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.pequla.dlaw.DLAW;
+import com.pequla.dlaw.PluginUtils;
 import com.pequla.dlaw.service.DataService;
 import lombok.RequiredArgsConstructor;
 import net.dv8tion.jda.api.EmbedBuilder;
@@ -87,7 +88,7 @@ public class OtherModule implements Listener {
                 if (node.has(title) && node.has(desc)) {
                     Player player = event.getPlayer();
                     plugin.sendPlayerEmbed(player, "color.advancement", new EmbedBuilder()
-                            .setDescription(MarkdownUtil.bold(player.getName() + " made an advancement"))
+                            .setDescription(MarkdownUtil.bold(PluginUtils.cleanName(player) + " made an advancement"))
                             .addField(node.get(title).asText(), node.get(desc).asText(), false));
                 }
             } catch (IOException e) {
