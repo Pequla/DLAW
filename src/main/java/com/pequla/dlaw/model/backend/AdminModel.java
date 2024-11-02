@@ -15,5 +15,5 @@ public class AdminModel {
     private Integer id;
     private UserModel user;
     private GuildModel guild;
-    private LocalDateTime createdAt;
+    private String createdAt;
 }

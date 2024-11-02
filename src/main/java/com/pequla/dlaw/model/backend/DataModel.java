@@ -16,5 +16,5 @@ public class DataModel {
     private String uuid;
     private UserModel user;
     private GuildModel guild;
-    private LocalDateTime createdAt;
+    private String createdAt;
 }

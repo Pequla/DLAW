@@ -5,7 +5,6 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.pequla.dlaw.PluginUtils;
 import com.pequla.dlaw.model.PlayerData;
 import com.pequla.dlaw.model.backend.BanModel;
@@ -39,7 +38,6 @@ public class DataService {
 
         // Register json mapper
         this.mapper = new ObjectMapper();
-        mapper.registerModule(new JavaTimeModule());
         mapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
         mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
     }

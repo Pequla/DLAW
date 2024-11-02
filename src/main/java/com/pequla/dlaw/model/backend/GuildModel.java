@@ -14,5 +14,5 @@ import java.time.LocalDateTime;
 public class GuildModel {
     private Integer id;
     private String discordId;
-    private LocalDateTime createdAt;
+    private String createdAt;
 }

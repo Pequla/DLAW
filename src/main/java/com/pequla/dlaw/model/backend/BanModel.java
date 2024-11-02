@@ -16,5 +16,5 @@ public class BanModel {
     private UserModel user;
     private AdminModel admin;
     private String reason;
-    private LocalDateTime createdAt;
+    private String createdAt;
 }
