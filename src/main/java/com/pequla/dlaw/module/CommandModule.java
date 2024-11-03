@@ -77,10 +77,9 @@ public class CommandModule extends ListenerAdapter {
                 command.execute(event, plugin);
             }
         } catch (Exception e) {
-            e.printStackTrace();
             event.getHook().sendMessageEmbeds(new EmbedBuilder()
                     .setColor(Color.RED)
-                    .setTitle(MarkdownUtil.bold(e.getClass().getSimpleName()))
+                    .setTitle(MarkdownUtil.bold("Oh, something went wrong!"))
                     .setDescription(e.getMessage())
                     .setTimestamp(Instant.now())
                     .build()).queue();

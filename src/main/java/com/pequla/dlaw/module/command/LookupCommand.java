@@ -36,7 +36,7 @@ public class LookupCommand implements SlashCommand {
                             .addEmbeds(new EmbedBuilder()
                                     .setColor(plugin.getConfig().getInt("color.command"))
                                     .setTitle(MarkdownUtil.bold("Verification data"))
-                                    .addField("User:", user.getEffectiveName(), false)
+                                    .addField("User:", user.getAsMention(), false)
                                     .addField("Username:", account.getName(), false)
                                     .setThumbnail(user.getEffectiveAvatarUrl())
                                     .setImage(PluginUtils.playerBustUrl(account.getId()))
