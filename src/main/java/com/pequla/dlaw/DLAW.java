@@ -10,6 +10,7 @@ import net.dv8tion.jda.api.entities.Activity;
 import net.dv8tion.jda.api.entities.SelfUser;
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 import net.dv8tion.jda.api.requests.GatewayIntent;
+import net.dv8tion.jda.api.utils.ChunkingFilter;
 import net.dv8tion.jda.api.utils.MarkdownUtil;
 import net.dv8tion.jda.api.utils.MemberCachePolicy;
 import org.bukkit.entity.Player;
@@ -38,11 +39,12 @@ public final class DLAW extends JavaPlugin {
 
             jda = JDABuilder.createDefault(getConfig().getString("discord.token"))
                     .setActivity(Activity.playing("Minecraft"))
-                    .enableIntents(GatewayIntent.GUILD_MEMBERS)
                     .enableIntents(GatewayIntent.DIRECT_MESSAGES)
                     .enableIntents(GatewayIntent.GUILD_MESSAGES)
                     .enableIntents(GatewayIntent.MESSAGE_CONTENT)
+                    .enableIntents(GatewayIntent.GUILD_MEMBERS)
                     .setMemberCachePolicy(MemberCachePolicy.ALL)
+                    .setChunkingFilter(ChunkingFilter.ALL)
                     .addEventListeners(chatModule)
                     .addEventListeners(commandModule)
                     .build();

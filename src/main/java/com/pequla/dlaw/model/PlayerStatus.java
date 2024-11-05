@@ -10,7 +10,6 @@ import java.util.Set;
 @Setter
 @Builder
 public class PlayerStatus {
-
     private int max;
     private int online;
     private Set<PlayerData> list;

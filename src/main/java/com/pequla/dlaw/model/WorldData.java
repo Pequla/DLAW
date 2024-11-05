@@ -8,7 +8,6 @@ import lombok.*;
 @Setter
 @Builder
 public class WorldData {
-
     private String seed;
     private Long time;
     private String type;

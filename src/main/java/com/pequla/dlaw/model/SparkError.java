@@ -8,7 +8,6 @@ import lombok.*;
 @Setter
 @Builder
 public class SparkError {
-
     private String message;
     private Long timestamp;
 }

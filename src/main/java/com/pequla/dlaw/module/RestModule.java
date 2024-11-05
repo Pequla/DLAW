@@ -51,18 +51,18 @@ public class RestModule implements Runnable {
         });
 
         Spark.get("/api/members", ((request, response) -> {
-            Guild guild = main.getJda().getGuildById(config.getString("discord.guild"));
+            String id = config.getString("discord.guild");
+            Guild guild = main.getJda().getGuildById(id);
             if (guild == null) {
                 response.status(500);
                 generateError("Guild not found");
             }
             return mapper.writeValueAsString(guild.getMembers().stream()
                     .filter(m -> !m.getUser().isBot())
-                    .map(m -> DiscordModel.builder()
+                    .map(m -> MemberModel.builder()
                             .id(m.getId())
-                            .name(m.getUser().getEffectiveName())
-                            .nickname(m.getEffectiveName())
-                            .avatar(m.getEffectiveAvatarUrl())
+                            .name(m.getEffectiveName())
+                            .joinedAt(m.getTimeJoined().toLocalDateTime().toString())
                             .build())
                     .collect(Collectors.toList()));
         }));

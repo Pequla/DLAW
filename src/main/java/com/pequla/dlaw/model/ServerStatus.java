@@ -10,10 +10,8 @@ import java.util.List;
 @Setter
 @Builder
 public class ServerStatus {
-
     private PlayerStatus players;
     private WorldData world;
     private List<PluginData> plugins;
     private String version;
-
 }
