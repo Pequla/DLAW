@@ -1,10 +1,13 @@
 discord:
   token: token-goes-here
-  guild: 553568657410883604
+  guild: 1088934690385317928
   channel:
-    chat: 1024426048932302878
+    chat: 1090021511848525856
   role:
-    staff: 707598912768442489
+    join:
+      enabled: true
+      id: 1088934690385317928
+    staff: 1088936906370326611
     verified: 1221230313271853086
   dm-death-cords: true
   include-global-bans: true
@@ -12,7 +15,7 @@ api:
   enable: true
   port: 8010
 minecraft:
-  address: fluxsmp.pequla.com
+  address: play.beocraft.net
 color:
   command: 65535
   system: 65535

@@ -2,9 +2,9 @@ package com.pequla.dlaw.module;
 
 import com.pequla.dlaw.DLAW;
 import com.pequla.dlaw.PluginUtils;
+import com.pequla.dlaw.model.DiscordModel;
 import com.pequla.dlaw.model.backend.BanModel;
 import com.pequla.dlaw.model.backend.DataModel;
-import com.pequla.dlaw.model.DiscordModel;
 import com.pequla.dlaw.service.DataService;
 import lombok.RequiredArgsConstructor;
 import net.dv8tion.jda.api.EmbedBuilder;
@@ -77,6 +77,14 @@ public class JoinModule implements Listener {
 
             // Getting player as a discord member
             Member member = guild.retrieveMemberById(model.getUser().getDiscordId()).complete();
+
+            if (config.getBoolean("discord.role.join.enabled")) {
+                if (member.getRoles().stream().noneMatch(role -> role.getId().equals(config.getString("discord.role.join.id")))) {
+                    event.disallow(PlayerLoginEvent.Result.KICK_OTHER, "You don't have the required role");
+                    return;
+                }
+            }
+
             DiscordModel discord = DiscordModel.builder()
                     .id(member.getId())
                     .name(MarkdownSanitizer.sanitize(member.getUser().getEffectiveName()))
