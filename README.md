@@ -60,6 +60,9 @@ discord:
   channel:
     chat: 1024426048932302878
   role:
+    join:
+      enabled: true # Toggles if role auth is in use
+      id: 553568657410883604 # Role ID of the required role to join the server
     staff: 707598912768442489
     verified: 1221230313271853086
   dm-death-cords: true
@@ -68,7 +71,7 @@ api:
   enable: true
   port: 8010
 minecraft:
-  address: fluxsmp.pequla.com
+  address: play.beocraft.net
 color:
   system: 65535
   join: 65280
