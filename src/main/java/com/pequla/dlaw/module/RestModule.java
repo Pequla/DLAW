@@ -20,6 +20,7 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.UUID;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
@@ -29,6 +30,8 @@ public class RestModule implements Runnable {
     private final Server server;
     private final FileConfiguration config;
     private final ObjectMapper mapper;
+
+    private static final Pattern UUID_WITHOUT_HYPHENS = Pattern.compile("^[0-9a-fA-F]{32}$");
 
     public RestModule(DLAW main) {
         this.main = main;
@@ -74,6 +77,30 @@ public class RestModule implements Runnable {
                                 .name(p.getName())
                                 .build()).collect(Collectors.toList()))));
 
+        Spark.get("/api/players/:uuid", (request, response) -> {
+            try {
+                UUID uuid = parseUUID(request.params("uuid"));
+                PlayerData player = Arrays.stream(main.getServer().getOfflinePlayers())
+                        .filter(p -> p.getUniqueId().equals(uuid))
+                        .map(p -> PlayerData.builder()
+                                .id(p.getUniqueId().toString())
+                                .name(p.getName())
+                                .build())
+                        .findFirst()
+                        .orElse(null);
+
+                if (player == null) {
+                    response.status(404);
+                    return generateError("Player not found");
+                }
+                return mapper.writeValueAsString(player);
+
+            } catch (IllegalArgumentException e) {
+                response.status(400);
+                return generateError("Invalid UUID format");
+            }
+        });
+
         Spark.get("/api/status", (request, response) ->
                 mapper.writeValueAsString(ServerStatus.builder()
                         .players(getPlayerStatus())
@@ -91,35 +118,20 @@ public class RestModule implements Runnable {
         Spark.get("/api/status/world", (request, response) ->
                 mapper.writeValueAsString(getWorldData()));
 
-        Spark.get("/api/user", (request, response) -> {
-            DataService service = DataService.getInstance();
-            String uuid = request.queryParams("uuid");
-            if (uuid != null) {
-                UUID converted;
-                try {
-                    converted = UUID.fromString(uuid);
-                } catch (IllegalArgumentException ae) {
-                    // Adding dashes to uuid string
-                    try {
-                        converted = UUID.fromString(uuid.replaceFirst(
-                                "(\\p{XDigit}{8})(\\p{XDigit}{4})(\\p{XDigit}{4})(\\p{XDigit}{4})(\\p{XDigit}+)", "$1-$2-$3-$4-$5"
-                        ));
-                    } catch (Exception ex) {
-                        // Bad uuid
-                        response.status(400);
-                        return generateError("Invalid uuid");
-                    }
-                }
+        Spark.get("/api/user/:uuid", (request, response) -> {
+            try {
+                DataService service = DataService.getInstance();
+                UUID uuid = parseUUID(request.params("uuid"));
 
                 // No data found in cache
-                DiscordModel model = main.getPlayers().get(converted);
+                DiscordModel model = main.getPlayers().get(uuid);
                 if (model == null) {
                     Guild guild = main.getJda().getGuildById(config.getLong("discord.guild"));
                     if (guild == null) {
                         response.status(404);
                         return generateError("Discord server not found");
                     }
-                    DataModel data = service.getData(converted.toString());
+                    DataModel data = service.getData(uuid.toString());
                     Member member = guild.retrieveMemberById(data.getUser().getDiscordId()).complete();
                     if (member == null) {
                         response.status(404);
@@ -133,9 +145,10 @@ public class RestModule implements Runnable {
                             .build());
                 }
                 return service.getMapper().writeValueAsString(model);
+            } catch (IllegalArgumentException e) {
+                response.status(400);
+                return generateError("Invalid UUID format");
             }
-            response.status(400);
-            return generateError("Required param uuid not found");
         });
     }
 
@@ -185,5 +198,22 @@ public class RestModule implements Runnable {
                 .time(world.getTime())
                 .type(server.getWorldType())
                 .build();
+    }
+
+    private UUID parseUUID(String uuidStr) {
+        try {
+            return UUID.fromString(uuidStr);
+        } catch (IllegalArgumentException ignored) {
+        }
+
+        if (UUID_WITHOUT_HYPHENS.matcher(uuidStr).matches()) {
+            String formattedUUID = uuidStr.replaceFirst(
+                    "(\\w{8})(\\w{4})(\\w{4})(\\w{4})(\\w{12})",
+                    "$1-$2-$3-$4-$5"
+            );
+            return UUID.fromString(formattedUUID);
+        }
+
+        throw new IllegalArgumentException("Invalid UUID format");
     }
 }
