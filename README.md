@@ -35,7 +35,8 @@ users this feature might not be needed
 - `GET /api/status/plugins` List of plugins
 - `GET /api/status/world` World information
 - `GET /api/players` List of all players who joined the server
-- `GET /api/user?uuid=` Discord account information from Minecraft account UUID
+- `GET /api/players/<uuid>` Get player from server by UUID (useful for details page)
+- `GET /api/user/<uuid>` Discord account information from Minecraft account UUID
 
 ### Setup
 
