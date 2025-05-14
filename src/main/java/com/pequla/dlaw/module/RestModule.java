@@ -3,6 +3,7 @@ package com.pequla.dlaw.module;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.pequla.dlaw.DLAW;
+import com.pequla.dlaw.PluginUtils;
 import com.pequla.dlaw.model.*;
 import com.pequla.dlaw.model.backend.DataModel;
 import com.pequla.dlaw.service.DataService;
@@ -16,6 +17,7 @@ import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.plugin.PluginDescriptionFile;
 import spark.Spark;
 
+import javax.security.auth.login.LoginException;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
@@ -51,6 +53,23 @@ public class RestModule implements Runnable {
             response.header("Access-Control-Allow-Origin", "*");
             response.header("Access-Control-Allow-Methods", "*");
             response.type("application/json");
+        });
+
+        Spark.get("/api/auth/:uuid", (request, response) -> {
+            try {
+                String uuid = request.params("uuid");
+                main.getLogger().info("REST API Authenticating player " + uuid);
+                DiscordModel auth = PluginUtils.authenticatePlayer(main, uuid);
+                return mapper.writeValueAsString(auth);
+            } catch (Exception e) {
+                if (e instanceof LoginException) {
+                    response.status(401);
+                    return generateError(e.getMessage());
+                }
+
+                response.status(400);
+                return generateError("Bad Request");
+            }
         });
 
         Spark.get("/api/members", ((request, response) -> {

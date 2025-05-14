@@ -37,6 +37,9 @@ users this feature might not be needed
 - `GET /api/players` List of all players who joined the server
 - `GET /api/players/<uuid>` Get player from server by UUID (useful for details page)
 - `GET /api/user/<uuid>` Discord account information from Minecraft account UUID
+- `GET /api/auth/<uuid>` Auth account for external use (ex. DasherClient plugin)
+
+> [DasherClient](https://github.com/Pequla/DasherClient) is a plugin that allows you to have multiple Minecraft servers with one single Discord bot running from DLAW while using the same join requirements as in the main server running the DLAW plugin as well.
 
 ### Setup
 
