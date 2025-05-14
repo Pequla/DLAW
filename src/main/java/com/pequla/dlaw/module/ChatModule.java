@@ -3,6 +3,7 @@ package com.pequla.dlaw.module;
 import com.pequla.dlaw.DLAW;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.User;
+import net.dv8tion.jda.api.entities.channel.ChannelType;
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
@@ -27,6 +28,8 @@ public class ChatModule extends ListenerAdapter implements Listener {
 
     @Override
     public void onMessageReceived(@NotNull MessageReceivedEvent event) {
+        if (event.getChannelType() != ChannelType.TEXT) return;
+
         User author = event.getAuthor();
         Message message = event.getMessage();
 
