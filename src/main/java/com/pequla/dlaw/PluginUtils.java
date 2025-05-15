@@ -15,6 +15,7 @@ import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
 
 import javax.security.auth.login.LoginException;
+import java.io.IOException;
 import java.util.UUID;
 
 public class PluginUtils {
@@ -116,9 +117,8 @@ public class PluginUtils {
             if (re.getErrorResponse() == ErrorResponse.UNKNOWN_USER) {
                 throw new LoginException("Discord user not found");
             }
-        } catch (Exception e) {
-            // On any error player will get kicked
-            throw new LoginException("You haven't linked your account");
+        } catch (IOException | InterruptedException ex) {
+            throw new LoginException("Backend unreachable");
         }
 
         throw new LoginException("Something went wrong");
